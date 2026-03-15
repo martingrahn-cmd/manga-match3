@@ -42,8 +42,7 @@ body::before {
   background-size:
     12px 12px,
     100% 100%;
-  mix-blend-mode: screen;
-  opacity: 0.42;
+  opacity: 0.32;
 }
 
 .bg-halo {
@@ -55,6 +54,9 @@ body::before {
   opacity: 0.34;
   pointer-events: none;
   animation: float-halo 9s ease-in-out infinite alternate;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .halo-a {
@@ -227,8 +229,12 @@ h1 {
   position: absolute;
   inset: 0;
   background: linear-gradient(120deg, #ffffff00, #ffffff8e 45%, #ffffff00 75%);
-  mix-blend-mode: screen;
+  animation-play-state: paused;
+}
+
+.hud-panel.fever-on .fever-fill::after {
   animation: fever-sheen 1500ms linear infinite;
+  animation-play-state: running;
 }
 
 .fever-meta {
@@ -528,17 +534,13 @@ button:disabled {
 .board::after {
   content: "";
   position: absolute;
-  inset: -16%;
+  inset: 0;
   pointer-events: none;
-  background: repeating-conic-gradient(
-    from 0deg at 50% 50%,
-    #ffffff00 0deg 8deg,
-    #ffffff16 8deg 10deg
-  );
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 20%, #ffffff18, transparent 50%),
+    radial-gradient(circle at 70% 80%, #ffffff10, transparent 45%);
   opacity: 0.14;
-  mix-blend-mode: screen;
-  animation: speed-rotate 32s linear infinite;
-  will-change: transform;
 }
 
 .tile {
@@ -575,7 +577,6 @@ button:disabled {
     transform 90ms ease,
     filter 100ms ease;
   isolation: isolate;
-  will-change: transform, opacity;
   backface-visibility: hidden;
   transform: translateZ(0);
   contain: layout paint;
@@ -663,11 +664,11 @@ button:disabled {
 }
 
 .tile.spawn-enter {
-  animation: spawn-enter var(--spawn-ms) cubic-bezier(0.2, 0.82, 0.22, 1) calc(var(--spawn-delay) + var(--fx-delay)) both;
+  animation: spawn-enter var(--spawn-ms) cubic-bezier(0.22, 0.68, 0.35, 1.06) calc(var(--spawn-delay) + var(--fx-delay)) both;
 }
 
 .tile.spawn-enter .sprite--tile {
-  animation: spawn-sprite var(--spawn-ms) cubic-bezier(0.2, 0.82, 0.22, 1) calc(var(--spawn-delay) + var(--fx-delay)) both !important;
+  animation: spawn-sprite var(--spawn-ms) cubic-bezier(0.22, 0.68, 0.35, 1.06) calc(var(--spawn-delay) + var(--fx-delay)) both !important;
 }
 
 .tile.fall-step {
@@ -881,10 +882,13 @@ button:disabled {
     drop-shadow(0 2px 0 #12183a)
     drop-shadow(0 7px 12px #0000004d);
   transition: transform 90ms ease;
-  animation: mood-idle 2s ease-in-out infinite;
-  will-change: transform, opacity;
   backface-visibility: hidden;
   transform: translateZ(0);
+}
+
+.tile:hover .sprite--tile,
+.tile.selected .sprite--tile {
+  animation: mood-idle 2s ease-in-out infinite;
 }
 
 .tile:hover .sprite--tile {
@@ -1289,7 +1293,6 @@ button:disabled {
 }
 
 .board.blocked::after {
-  animation-play-state: paused;
   opacity: 0.08;
 }
 
@@ -1376,7 +1379,6 @@ button:disabled {
 
 .board-panel.fever-on .board::after {
   opacity: 0.24;
-  animation-duration: 20s;
 }
 
 .flash {
@@ -1491,16 +1493,18 @@ button:disabled {
 
 @keyframes spawn-enter {
   0% {
-    transform: translate3d(0, calc(var(--spawn-cells) * -102%), 0) scale(0.9) rotate(var(--spawn-jitter));
-    opacity: 0.36;
+    transform: translate3d(0, calc(var(--spawn-cells) * -102%), 0) scale(0.92) rotate(var(--spawn-jitter));
+    opacity: 0;
   }
-  46% {
-    transform: translate3d(0, 3.2%, 0) scale(1.035) rotate(calc(var(--spawn-jitter) * -0.24));
+  18% {
     opacity: 1;
   }
-  74% {
-    transform: translate3d(0, -0.8%, 0) scale(0.996) rotate(calc(var(--spawn-jitter) * 0.08));
+  58% {
+    transform: translate3d(0, 2.4%, 0) scale(1.03) rotate(calc(var(--spawn-jitter) * -0.18));
     opacity: 1;
+  }
+  80% {
+    transform: translate3d(0, -0.6%, 0) scale(0.997) rotate(calc(var(--spawn-jitter) * 0.05));
   }
   100% {
     transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
@@ -1510,15 +1514,18 @@ button:disabled {
 
 @keyframes spawn-sprite {
   0% {
-    transform: scale(0.92) rotate(calc(var(--spawn-jitter) * -0.08));
-    opacity: 0.8;
+    transform: scale(0.88) rotate(calc(var(--spawn-jitter) * -0.08));
+    opacity: 0.6;
   }
-  52% {
-    transform: scale(1.05) rotate(calc(var(--spawn-jitter) * 0.06));
+  22% {
     opacity: 1;
   }
-  76% {
-    transform: scale(0.995) rotate(calc(var(--spawn-jitter) * -0.02));
+  60% {
+    transform: scale(1.04) rotate(calc(var(--spawn-jitter) * 0.04));
+    opacity: 1;
+  }
+  82% {
+    transform: scale(0.997) rotate(calc(var(--spawn-jitter) * -0.01));
   }
   100% {
     transform: scale(1) rotate(0deg);
@@ -1796,14 +1803,6 @@ button:disabled {
   }
 }
 
-@keyframes speed-rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
 @keyframes fever-sheen {
   0% {

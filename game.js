@@ -5,7 +5,7 @@ const TIMING = {
   SWAP_MS: 205,
   INVALID_MS: 220,
   CLEAR_MS: 320,
-  SPAWN_MS: 340,
+  SPAWN_MS: 440,
   CASCADE_MS: 140,
   GRAVITY_FALL_MS: 168,
   GRAVITY_STEP_MS: 8,
@@ -2205,8 +2205,8 @@ class MangaMatch3 {
     if (spawnCells) {
       const spawnDepth = Math.min(4, spawnCells);
       button.style.setProperty("--spawn-cells", `${spawnDepth}`);
-      button.style.setProperty("--spawn-delay", `${Math.min(48, (spawnDepth - 1) * 11)}ms`);
-      button.style.setProperty("--spawn-ms", `${Math.min(340, 248 + spawnDepth * 22)}ms`);
+      button.style.setProperty("--spawn-delay", `${Math.min(60, (spawnDepth - 1) * 14)}ms`);
+      button.style.setProperty("--spawn-ms", `${Math.min(440, 310 + spawnDepth * 28)}ms`);
     }
 
     parts.moodAura.hidden = false;
