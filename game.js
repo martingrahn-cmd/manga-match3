@@ -279,6 +279,11 @@ class MangaMatch3 {
     this.restartBtn = document.getElementById("restartBtn");
     this.nextBtn = document.getElementById("nextBtn");
     this.shuffleBtn = document.getElementById("shuffleBtn");
+    this.resultOverlay = document.getElementById("resultOverlay");
+    this.resultTitle = document.getElementById("resultTitle");
+    this.resultBody = document.getElementById("resultBody");
+    this.resultRetryBtn = document.getElementById("resultRetryBtn");
+    this.resultNextBtn = document.getElementById("resultNextBtn");
 
     this.levelIndex = 0;
     this.currentLevel = null;
@@ -324,6 +329,14 @@ class MangaMatch3 {
     this.restartBtn.addEventListener("click", () => this.resetCurrentLevel());
     this.nextBtn.addEventListener("click", () => this.goToNextLevel());
     this.shuffleBtn.addEventListener("click", () => this.manualShuffle());
+    this.resultRetryBtn.addEventListener("click", () => {
+      this.hideResultOverlay();
+      this.resetCurrentLevel();
+    });
+    this.resultNextBtn.addEventListener("click", () => {
+      this.hideResultOverlay();
+      this.goToNextLevel();
+    });
 
     this.swipeStart = null;
     this.swipeThreshold = 30;
@@ -464,6 +477,7 @@ class MangaMatch3 {
     this.showComboBurst(`STAGE ${this.currentLevel.id}`);
     this.spawnOffsets.clear();
     this.fxLayerEl?.replaceChildren();
+    this.hideResultOverlay();
     this.render();
     this.scheduleHint();
   }
@@ -1525,22 +1539,18 @@ class MangaMatch3 {
         this.setStatus("Du klarade alla 10 banor! Finalpanelen är säkrad.");
         this.showComboBurst("VICTORY!");
       } else {
-        this.setStatus(`Bana ${this.currentLevel.id} klar. Tryck Nästa bana.`);
+        this.setStatus(`Bana ${this.currentLevel.id} klar!`);
         this.showComboBurst("STAGE CLEAR");
       }
+      window.setTimeout(() => this.showResultOverlay("victory"), 1200);
       return;
     }
 
     if (this.moves <= 0) {
       this.levelComplete = true;
       this.updateHUD();
-      const missing = this.currentLevel.goals.find((goal) => !this.isGoalComplete(goal));
-      if (missing) {
-        this.setStatus(`Slut på drag. Kvar: ${this.goalText(missing)}.`);
-      } else {
-        this.setStatus("Slut på drag.");
-      }
       this.showComboBurst("TRY AGAIN");
+      window.setTimeout(() => this.showResultOverlay("game-over"), 1200);
       return;
     }
 
@@ -1551,6 +1561,37 @@ class MangaMatch3 {
 
     this.updateHUD();
     this.renderGoals();
+  }
+
+  showResultOverlay(type) {
+    const isVictory = type === "victory";
+    this.resultOverlay.hidden = false;
+    this.resultOverlay.className = `result-overlay ${isVictory ? "victory" : "game-over"}`;
+
+    this.resultTitle.textContent = isVictory ? "Stage Clear!" : "Game Over";
+
+    const movesUsed = this.currentLevel.moves - this.moves;
+    const lines = [];
+    if (isVictory) {
+      lines.push(`Bana ${this.currentLevel.id}: ${this.currentLevel.name}`);
+    }
+    lines.push(`<span class="result-score">${this.score.toLocaleString("sv")} p</span>`);
+    lines.push(`<span class="result-detail">${movesUsed} drag använda av ${this.currentLevel.moves}</span>`);
+
+    if (!isVictory) {
+      const missing = this.currentLevel.goals.find((g) => !this.isGoalComplete(g));
+      if (missing) {
+        lines.push(`<span class="result-detail">Kvar: ${this.goalText(missing)}</span>`);
+      }
+    }
+
+    this.resultBody.innerHTML = lines.join("");
+    this.resultNextBtn.hidden = !isVictory || this.levelIndex >= LEVELS.length - 1;
+    this.resultRetryBtn.textContent = isVictory ? "Spela igen" : "Försök igen";
+  }
+
+  hideResultOverlay() {
+    this.resultOverlay.hidden = true;
   }
 
   manualShuffle() {

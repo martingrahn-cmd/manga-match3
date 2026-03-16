@@ -5,15 +5,15 @@
 | Prio | Förbättring | Påverkan | Status |
 |------|------------|----------|--------|
 | 1 | Ljud & musik | Enorm - spelet känns "dött" utan | Ej påbörjad |
-| 2 | Hint-system | Hög - förhindrar frustration | Ej påbörjad |
+| 2 | Hint-system | Hög - förhindrar frustration | Implementerad |
 | 3 | Tutorial / Onboarding | Hög - onboarding av nya spelare | Ej påbörjad |
 | 4 | Stjärn-system + nivåväljare | Hög - ger motivation att spela om | Ej påbörjad |
 | 5 | Swipe-stöd (mobil) | Hög - standard för match-3 | Implementerad |
-| 6 | Victory/Game over polish | Medium - bättre closure per nivå | Ej påbörjad |
+| 6 | Victory/Game over polish | Medium - bättre closure per nivå | Implementerad |
 | 7 | Power-ups & Shop | Medium - djupare gameplay | Ej påbörjad |
 | 8 | Koduppdelning i moduler | Medium - developer experience | Ej påbörjad |
 | 9 | Undo-funktion | Medium - quality of life | Ej påbörjad |
-| 10 | Canvas-rendering | Låg - nuvarande prestanda verkar OK | Ej påbörjad |
+| 10 | Canvas-rendering | Låg - prestanda fixad via CSS-optimering | Ej påbörjad |
 
 ---
 
@@ -23,10 +23,10 @@
 - Dynamisk musik - tempo/intensitet ökar vid fever mode och långa kedjor
 - Volymkontroller i UI
 
-## 2. Hint-system
-- Om spelaren är inaktiv 5+ sekunder → visa subtil animation på ett giltigt drag
-- "Inga drag kvar"-detektion → automatisk omflyttning av brädet
-- Förhindrar frustration och dead-ends
+## 2. Hint-system ✅
+- ~~Om spelaren är inaktiv 5+ sekunder → visa subtil animation på ett giltigt drag~~ → 12s idle-timer, glow + bounce på giltigt drag
+- "Inga drag kvar"-detektion → automatisk omflyttning av brädet (fanns redan)
+- Hint rensas vid klick/swipe, ny timer startas efter varje drag
 
 ## 3. Tutorial / Onboarding
 - Interaktiv tutorial på nivå 1 med overlay-pilar och textbubblor
@@ -45,12 +45,12 @@
 - Fullscreen-läge på mobil
 - Testa layout på små skärmar
 
-## 6. Victory/Game Over Polish
-- Tydligare feedback med poängsammanfattning
-- Visa stjärnor, bästa poäng, jämförelse med tidigare försök
-- "Försök igen" vs "Nästa nivå" knappar
-- Victory-animation med karaktärer som jublar
-- Game over-animation med ledsna karaktärer
+## 6. Victory/Game Over Polish ✅ (grund)
+- ~~Tydligare feedback med poängsammanfattning~~ → Result overlay med poäng och drag använda
+- Visa stjärnor, bästa poäng, jämförelse med tidigare försök (ej implementerat ännu)
+- ~~"Försök igen" vs "Nästa nivå" knappar~~ → Implementerat i overlayt
+- Victory-animation med karaktärer som jublar (ej implementerat ännu)
+- Game over-animation med ledsna karaktärer (ej implementerat ännu)
 
 ## 7. Power-ups & Shop
 - Hammare - ta bort en valfri bricka
