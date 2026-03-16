@@ -518,6 +518,9 @@ button:disabled {
   position: relative;
   overflow: hidden;
   contain: layout paint;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .board::before {

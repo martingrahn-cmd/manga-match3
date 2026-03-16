@@ -315,6 +315,12 @@ class MangaMatch3 {
     this.restartBtn.addEventListener("click", () => this.resetCurrentLevel());
     this.nextBtn.addEventListener("click", () => this.goToNextLevel());
     this.shuffleBtn.addEventListener("click", () => this.manualShuffle());
+
+    this.swipeStart = null;
+    this.swipeThreshold = 30;
+    this.boardEl.addEventListener("touchstart", (e) => this.onTouchStart(e), { passive: false });
+    this.boardEl.addEventListener("touchmove", (e) => this.onTouchMove(e), { passive: false });
+    this.boardEl.addEventListener("touchend", (e) => this.onTouchEnd(e));
   }
 
   setupBoardGrid() {
@@ -582,6 +588,73 @@ class MangaMatch3 {
     }
 
     this.swapAttempt(this.selected, pos);
+  }
+
+  getTilePosFromTouch(touch) {
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!el) return null;
+    const tileButton = el.closest(".tile");
+    if (!tileButton) return null;
+    const row = Number(tileButton.dataset.row);
+    const col = Number(tileButton.dataset.col);
+    if (!this.inBounds(row, col) || this.isFrameCell(row, col) || !this.board[row][col]) return null;
+    return { row, col };
+  }
+
+  onTouchStart(event) {
+    if (this.busy || this.levelComplete) return;
+    const touch = event.touches[0];
+    const pos = this.getTilePosFromTouch(touch);
+    if (!pos) return;
+    event.preventDefault();
+    this.swipeStart = { x: touch.clientX, y: touch.clientY, row: pos.row, col: pos.col };
+  }
+
+  onTouchMove(event) {
+    if (!this.swipeStart) return;
+    event.preventDefault();
+  }
+
+  onTouchEnd(event) {
+    if (!this.swipeStart) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - this.swipeStart.x;
+    const dy = touch.clientY - this.swipeStart.y;
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+
+    const startPos = { row: this.swipeStart.row, col: this.swipeStart.col };
+    this.swipeStart = null;
+
+    if (absDx < this.swipeThreshold && absDy < this.swipeThreshold) {
+      this.onTileClick({ target: this.cellNodes[startPos.row][startPos.col] });
+      return;
+    }
+
+    let targetRow = startPos.row;
+    let targetCol = startPos.col;
+    if (absDx > absDy) {
+      targetCol += dx > 0 ? 1 : -1;
+    } else {
+      targetRow += dy > 0 ? 1 : -1;
+    }
+
+    if (!this.inBounds(targetRow, targetCol) || this.isFrameCell(targetRow, targetCol) || !this.board[targetRow][targetCol]) {
+      return;
+    }
+
+    const target = { row: targetRow, col: targetCol };
+    if (!this.canSelectCell(startPos)) {
+      this.setStatus("Låsta brickor kan inte flyttas.");
+      return;
+    }
+    if (!this.canSwap(startPos, target)) {
+      this.setStatus("Det draget är låst.");
+      return;
+    }
+
+    this.selected = null;
+    this.swapAttempt(startPos, target);
   }
 
   canSelectCell(pos) {
