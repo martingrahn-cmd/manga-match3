@@ -23,12 +23,12 @@ const DAILY_STORAGE_KEY = "manga-match-daily-v1";
 const DAILY_CHALLENGE_VERSION = 2;
 
 const TILE_TYPES = [
-  { id: "sakura", name: "Sakura", icon: "❀" },
-  { id: "neko", name: "Neko", icon: "⬢" },
-  { id: "sun", name: "Sol", icon: "◉" },
-  { id: "ink", name: "Bläck", icon: "◆" },
-  { id: "star", name: "Stjärna", icon: "✦" },
-  { id: "blade", name: "Blad", icon: "✚" },
+  { id: "sakura", name: "Rosa", icon: "🌸" },
+  { id: "neko", name: "Blå", icon: "🔵" },
+  { id: "sun", name: "Gul", icon: "🌟" },
+  { id: "ink", name: "Lila", icon: "🟣" },
+  { id: "star", name: "Grön", icon: "💚" },
+  { id: "blade", name: "Orange", icon: "🔶" },
 ];
 
 const TILE_INDEX_BY_ID = Object.fromEntries(TILE_TYPES.map((tile, index) => [tile.id, index]));
@@ -1442,12 +1442,12 @@ class MangaMatch3 {
       const tile = TILE_TYPES[tileIndex];
       const icon = tile?.icon ?? "◆";
       const label = tile?.name ?? "brickor";
-      return `Samla ${label} ${icon} ${progress}/${goal.amount}`;
+      return `${icon} Samla ${label}: ${progress}/${goal.amount}`;
     }
 
     if (goal.type === "clear") {
-      const label = goal.obstacle === "ink" ? "Ink Block" : "Panel Frame";
-      return `Rensa ${label} ${progress}/${goal.amount}`;
+      const label = goal.obstacle === "ink" ? "bläckblock" : "panelramar";
+      return `Rensa ${label}: ${progress}/${goal.amount}`;
     }
 
     if (goal.type === "unlock") {
