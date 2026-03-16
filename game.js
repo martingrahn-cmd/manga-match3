@@ -306,6 +306,8 @@ class MangaMatch3 {
     this.comboBurstVisible = false;
     this.comboBurstQueue = [];
     this.comboBurstTimer = null;
+    this.hintTimer = null;
+    this.hintedCells = [];
 
     this.collectCounts = Array(TILE_TYPES.length).fill(0);
     this.clearedObstacleCounts = { ink: 0, frame: 0 };
@@ -315,7 +317,10 @@ class MangaMatch3 {
     this.setupBoardGrid();
     this.loadLevel(0);
 
-    this.boardEl.addEventListener("click", (event) => this.onTileClick(event));
+    this.boardEl.addEventListener("click", (event) => {
+      this.clearHint();
+      this.onTileClick(event);
+    });
     this.restartBtn.addEventListener("click", () => this.resetCurrentLevel());
     this.nextBtn.addEventListener("click", () => this.goToNextLevel());
     this.shuffleBtn.addEventListener("click", () => this.manualShuffle());
@@ -460,6 +465,7 @@ class MangaMatch3 {
     this.spawnOffsets.clear();
     this.fxLayerEl?.replaceChildren();
     this.render();
+    this.scheduleHint();
   }
 
   resetCurrentLevel() {
@@ -611,6 +617,7 @@ class MangaMatch3 {
     const pos = this.getTilePosFromTouch(touch);
     if (!pos) return;
     event.preventDefault();
+    this.clearHint();
     this.swipeStart = { x: touch.clientX, y: touch.clientY, row: pos.row, col: pos.col };
   }
 
@@ -621,6 +628,7 @@ class MangaMatch3 {
 
   onTouchEnd(event) {
     if (!this.swipeStart) return;
+    this.clearHint();
     const touch = event.changedTouches[0];
     const dx = touch.clientX - this.swipeStart.x;
     const dy = touch.clientY - this.swipeStart.y;
@@ -700,6 +708,7 @@ class MangaMatch3 {
       this.busy = false;
       this.setStatus("Ogiltigt drag. Ingen matchning.");
       this.render();
+      this.scheduleHint();
       return;
     }
 
@@ -716,6 +725,7 @@ class MangaMatch3 {
     this.postTurnChecks();
     this.busy = false;
     this.render();
+    this.scheduleHint();
   }
 
   async resolveSpecialSwap(a, b) {
@@ -1315,19 +1325,56 @@ class MangaMatch3 {
   }
 
   hasAnyPossibleMove() {
+    return this.findHintMove() !== null;
+  }
+
+  findHintMove() {
     for (let r = 0; r < BOARD_SIZE; r += 1) {
       for (let c = 0; c < BOARD_SIZE; c += 1) {
         if (!this.canSwapCell(r, c)) continue;
 
         if (c + 1 < BOARD_SIZE && this.canSwapCell(r, c + 1) && this.testSwapForMatch(r, c, r, c + 1)) {
-          return true;
+          return [{ row: r, col: c }, { row: r, col: c + 1 }];
         }
         if (r + 1 < BOARD_SIZE && this.canSwapCell(r + 1, c) && this.testSwapForMatch(r, c, r + 1, c)) {
-          return true;
+          return [{ row: r, col: c }, { row: r + 1, col: c }];
         }
       }
     }
-    return false;
+    return null;
+  }
+
+  scheduleHint() {
+    this.clearHint();
+    if (this.busy || this.levelComplete) return;
+    this.hintTimer = window.setTimeout(() => {
+      this.hintTimer = null;
+      this.showHint();
+    }, 12000);
+  }
+
+  clearHint() {
+    if (this.hintTimer) {
+      window.clearTimeout(this.hintTimer);
+      this.hintTimer = null;
+    }
+    for (const node of this.hintedCells) {
+      node.classList.remove("hint");
+    }
+    this.hintedCells = [];
+  }
+
+  showHint() {
+    if (this.busy || this.levelComplete) return;
+    const move = this.findHintMove();
+    if (!move) return;
+    for (const pos of move) {
+      const node = this.getCellNode(pos.row, pos.col);
+      if (node) {
+        node.classList.add("hint");
+        this.hintedCells.push(node);
+      }
+    }
   }
 
   canSwapCell(row, col) {
