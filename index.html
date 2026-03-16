@@ -28,24 +28,12 @@
         <h1>Manga Match!</h1>
         <p class="tagline">Combo panels. Anime energy.</p>
 
-        <div class="stat-grid">
-          <article class="stat-card">
-            <span class="label">Score</span>
-            <strong id="score">0</strong>
-          </article>
-          <article class="stat-card">
-            <span class="label">Bana</span>
-            <strong id="level">1 / 10</strong>
-          </article>
-          <article class="stat-card">
-            <span class="label">Drag kvar</span>
-            <strong id="moves">25</strong>
-          </article>
-          <article class="stat-card">
-            <span class="label">Combo</span>
-            <strong id="combo">x1.0</strong>
-          </article>
-        </div>
+        <section class="goals-panel" aria-label="Banmål">
+          <h2>Mål</h2>
+          <ul id="goalsList" class="goal-list"></ul>
+        </section>
+
+        <div id="status" class="status-box">Byt två brickor för att starta.</div>
 
         <section class="fever-panel" aria-label="Fever mode">
           <div class="fever-head">
@@ -76,12 +64,24 @@
           </div>
         </section>
 
-        <section class="goals-panel" aria-label="Banmål">
-          <h2>Mål</h2>
-          <ul id="goalsList" class="goal-list"></ul>
-        </section>
-
-        <div id="status" class="status-box">Byt två brickor för att starta.</div>
+        <div class="stat-grid">
+          <article class="stat-card">
+            <span class="label">Score</span>
+            <strong id="score">0</strong>
+          </article>
+          <article class="stat-card">
+            <span class="label">Bana</span>
+            <strong id="level">1 / 10</strong>
+          </article>
+          <article class="stat-card">
+            <span class="label">Drag kvar</span>
+            <strong id="moves">25</strong>
+          </article>
+          <article class="stat-card">
+            <span class="label">Combo</span>
+            <strong id="combo">x1.0</strong>
+          </article>
+        </div>
 
         <div class="controls">
           <button id="restartBtn" type="button">Ny match</button>
