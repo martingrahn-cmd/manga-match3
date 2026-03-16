@@ -2029,6 +2029,58 @@ button:disabled {
     outline: 2px solid #ffffff;
   }
 
+  /* Shrink overlay badges so they don't cover the face sprite */
+  .mood-mark {
+    left: -2px;
+    top: -2px;
+    min-width: 12px;
+    height: 12px;
+    font-size: 0.5rem;
+    padding: 0 2px;
+    opacity: 0.85;
+  }
+
+  .special-chip {
+    right: -2px;
+    top: -2px;
+    --sprite-size: 16px;
+    opacity: 0.9;
+  }
+
+  .ink-layer {
+    left: -2px;
+    bottom: -2px;
+    padding: 0 2px 0 1px;
+    opacity: 0.85;
+  }
+
+  .ink-layer .sprite {
+    --sprite-size: 12px;
+  }
+
+  .layer-count {
+    font-size: 0.5rem;
+  }
+
+  .frame-layer {
+    left: -2px;
+    top: -2px;
+    width: 13px;
+    height: 13px;
+    font-size: 0.5rem;
+    opacity: 0.85;
+  }
+
+  .frame-icon {
+    --sprite-size: 14px;
+  }
+
+  .lock-mark {
+    transform: scale(0.7);
+    transform-origin: top left;
+    opacity: 0.8;
+  }
+
   .combo-burst {
     font-size: clamp(1.6rem, 8vw, 2.6rem) !important;
   }
