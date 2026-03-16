@@ -72,6 +72,11 @@ body::before {
   animation-delay: 1.6s;
 }
 
+/* ── Mobile sticky mini-HUD (hidden on desktop) ── */
+.mobile-hud {
+  display: none;
+}
+
 .game-shell {
   width: min(1140px, 95vw);
   margin: 24px auto;
@@ -1851,10 +1856,54 @@ button:disabled {
 
 /* ── Phone-specific: maximize board space ── */
 @media (max-width: 520px) {
+  /* Sticky mini-HUD at top */
+  .mobile-hud {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    justify-content: space-around;
+    align-items: center;
+    padding: 6px 8px;
+    background: linear-gradient(145deg, #10162f, #1a2550);
+    border-bottom: 2px solid #2a3568;
+    box-shadow: 0 4px 12px #00000060;
+    font-family: "M PLUS Rounded 1c", sans-serif;
+  }
+
+  .mobile-hud__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .mobile-hud__label {
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #8b9fd0;
+    letter-spacing: 0.5px;
+  }
+
+  .mobile-hud__item strong {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 1px 4px #00000080;
+  }
+
+  /* Board first, HUD below */
   .game-shell {
+    display: flex;
+    flex-direction: column;
     width: 100vw;
     margin: 0 auto;
     gap: 6px;
+  }
+
+  .board-panel {
+    order: -1;
   }
 
   /* Compact HUD */

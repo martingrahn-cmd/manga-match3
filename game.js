@@ -272,6 +272,10 @@ class MangaMatch3 {
     this.statusEl = document.getElementById("status");
     this.goalsListEl = document.getElementById("goalsList");
     this.comboBurstEl = document.getElementById("comboBurst");
+    this.mScoreEl = document.getElementById("mScore");
+    this.mMovesEl = document.getElementById("mMoves");
+    this.mComboEl = document.getElementById("mCombo");
+    this.mLevelEl = document.getElementById("mLevel");
     this.restartBtn = document.getElementById("restartBtn");
     this.nextBtn = document.getElementById("nextBtn");
     this.shuffleBtn = document.getElementById("shuffleBtn");
@@ -1872,6 +1876,11 @@ class MangaMatch3 {
     this.levelEl.textContent = `${this.levelIndex + 1} / ${LEVELS.length}`;
     this.movesEl.textContent = `${this.moves}`;
     this.comboEl.textContent = `x${this.combo.toFixed(1)}`;
+
+    if (this.mScoreEl) this.mScoreEl.textContent = `${this.score}`;
+    if (this.mMovesEl) this.mMovesEl.textContent = `${this.moves}`;
+    if (this.mComboEl) this.mComboEl.textContent = `x${this.combo.toFixed(1)}`;
+    if (this.mLevelEl) this.mLevelEl.textContent = `${this.levelIndex + 1}`;
     const feverPercent = Math.round((this.feverCharge / FEVER.MAX_CHARGE) * 100);
     if (this.feverFillEl) this.feverFillEl.style.width = `${feverPercent}%`;
     if (this.feverMeterEl) this.feverMeterEl.setAttribute("aria-valuenow", `${feverPercent}`);
