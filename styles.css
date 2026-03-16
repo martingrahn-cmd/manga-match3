@@ -1840,10 +1840,218 @@ button:disabled {
   .game-shell {
     grid-template-columns: 1fr;
     width: min(660px, 94vw);
+    margin: 12px auto;
+    gap: 10px;
   }
 
   .board {
     width: 100%;
+  }
+}
+
+/* ── Phone-specific: maximize board space ── */
+@media (max-width: 520px) {
+  .game-shell {
+    width: 100vw;
+    margin: 0 auto;
+    gap: 6px;
+  }
+
+  /* Compact HUD */
+  .hud-panel {
+    padding: 10px;
+    gap: 6px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    text-shadow: 1px 1px #ffffff, 2px 2px #0f1326;
+  }
+
+  .tagline {
+    display: none;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .stat-card {
+    padding: 5px 6px;
+    border-radius: 10px;
+    box-shadow: inset 0 1px #ffffff, 0 2px 0 #141835;
+  }
+
+  .stat-card .label {
+    font-size: 0.6rem;
+  }
+
+  .stat-card strong {
+    font-size: 1rem;
+  }
+
+  .fever-panel {
+    padding: 6px 8px 7px;
+    border-radius: 10px;
+  }
+
+  .fever-meter {
+    height: 10px;
+  }
+
+  .fever-meta {
+    margin-top: 3px;
+    font-size: 0.7rem;
+  }
+
+  .daily-panel {
+    padding: 6px 8px 7px;
+    border-radius: 10px;
+  }
+
+  .daily-task {
+    margin: 3px 0 5px;
+    font-size: 0.78rem;
+  }
+
+  .daily-progress {
+    height: 9px;
+  }
+
+  .daily-meta {
+    margin-top: 3px;
+    font-size: 0.68rem;
+  }
+
+  .goals-panel {
+    padding: 7px;
+    border-radius: 10px;
+  }
+
+  .goals-panel h2 {
+    margin: 0 0 4px;
+    font-size: 0.82rem;
+  }
+
+  .goal-list {
+    gap: 4px;
+  }
+
+  .goal-list li {
+    padding: 5px 7px;
+    font-size: 0.76rem;
+    border-radius: 8px;
+  }
+
+  .status-box {
+    padding: 7px;
+    min-height: 0;
+    font-size: 0.82rem;
+    border-radius: 10px;
+  }
+
+  .controls {
+    gap: 6px;
+  }
+
+  button {
+    padding: 7px 9px;
+    font-size: 0.82rem;
+    border-radius: 10px;
+    box-shadow: inset 0 1px #ffffffb3, 0 2px 0 #111833;
+  }
+
+  .rules {
+    display: none;
+  }
+
+  /* Board panel: minimize padding */
+  .board-panel {
+    padding: 6px;
+    gap: 4px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .manga-strip {
+    height: 10px;
+    border-radius: 5px;
+  }
+
+  .sfx-tag {
+    font-size: 0.9rem;
+    right: 12px;
+    top: 14px;
+    padding: 1px 7px;
+  }
+
+  /* Board: tighter gaps & padding for bigger tiles */
+  .board {
+    gap: 3px;
+    padding: 4px;
+    border-width: 2px;
+    border-radius: 12px;
+  }
+
+  /* Tiles: thicker colored borders for distinction */
+  .tile {
+    border-width: 3px;
+    border-radius: 10px;
+    box-shadow:
+      inset 0 1px #ffffffa3,
+      inset 0 -3px #0000002b,
+      0 2px 0 #13193a;
+    outline: none;
+  }
+
+  .tile.sakura { border-color: #d72a78; }
+  .tile.neko   { border-color: #1a5cc8; }
+  .tile.sun    { border-color: #b08900; }
+  .tile.ink    { border-color: #5a2abb; }
+  .tile.star   { border-color: #188a6a; }
+  .tile.blade  { border-color: #c43a12; }
+
+  .sprite--tile {
+    --sprite-size: 115%;
+    filter:
+      drop-shadow(0 1px 0 #12183a)
+      drop-shadow(0 3px 6px #0000004d);
+  }
+
+  .tile.selected {
+    outline: 2px solid #ffffff;
+  }
+
+  .combo-burst {
+    font-size: clamp(1.6rem, 8vw, 2.6rem) !important;
+  }
+}
+
+/* ── Very small phones (< 380px) ── */
+@media (max-width: 380px) {
+  .board {
+    gap: 2px;
+    padding: 3px;
+  }
+
+  .tile {
+    border-radius: 8px;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+  }
+
+  .sprite--tile {
+    --sprite-size: 120%;
   }
 }
 
