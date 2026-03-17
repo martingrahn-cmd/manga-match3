@@ -2545,7 +2545,12 @@ class MangaMatch3 {
     try { window.localStorage.setItem(TUTORIAL_STORAGE_KEY, "1"); } catch {}
   }
 
+  isMobile() {
+    return window.innerWidth <= 940;
+  }
+
   getTutorialSteps() {
+    const mobile = this.isMobile();
     return [
       {
         text: '<span class="tut-emoji">🌸</span> <strong>Välkommen till Manga Match!</strong><br>Matcha tre eller fler likadana brickor i rad för att samla poäng.',
@@ -2559,22 +2564,28 @@ class MangaMatch3 {
       },
       {
         text: '<span class="tut-emoji">🎯</span> Här ser du banans <strong>mål</strong>. Klara alla mål innan dragen tar slut!',
-        target: () => document.querySelector(".goals-panel"),
+        target: () => mobile
+          ? document.querySelector(".mobile-hud") || this.boardEl
+          : document.querySelector(".goals-panel"),
         btn: "Nästa",
       },
       {
         text: '<span class="tut-emoji">📊</span> Håll koll på <strong>poäng</strong>, <strong>drag kvar</strong> och din <strong>combo</strong>-multiplikator här.',
-        target: () => document.querySelector(".stat-grid"),
+        target: () => mobile
+          ? document.querySelector(".mobile-hud") || this.boardEl
+          : document.querySelector(".stat-grid"),
         btn: "Nästa",
       },
       {
         text: '<span class="tut-emoji">🔥</span> Bygg kedjor för att ladda <strong>Fever-mätaren</strong>! När den är full aktiveras Fever Mode med bonuspoäng.',
-        target: () => document.querySelector(".fever-panel"),
+        target: () => mobile
+          ? this.boardEl
+          : document.querySelector(".fever-panel"),
         btn: "Nästa",
       },
       {
         text: 'Matcha <strong>4 i rad</strong> för en linjeattack, <strong>5 i rad</strong> för färgbomb, och <strong>T/L-form</strong> för en bomb! Kombinera special-brickor för maximal effekt.',
-        target: () => document.querySelector(".rules") || this.boardEl,
+        target: () => this.boardEl,
         btn: "Nästa",
       },
       {
@@ -2613,14 +2624,27 @@ class MangaMatch3 {
     const targetEl = step.target();
     if (targetEl) {
       const rect = targetEl.getBoundingClientRect();
-      const pad = 8;
-      this.tutSpotlight.style.top = `${rect.top - pad}px`;
-      this.tutSpotlight.style.left = `${rect.left - pad}px`;
-      this.tutSpotlight.style.width = `${rect.width + pad * 2}px`;
-      this.tutSpotlight.style.height = `${rect.height + pad * 2}px`;
+      const vh = window.innerHeight;
+      const vw = window.innerWidth;
+      const inView = rect.bottom > 0 && rect.top < vh && rect.right > 0 && rect.left < vw;
 
-      // Position bubble
-      this.positionBubble(rect);
+      if (inView) {
+        const pad = 8;
+        this.tutSpotlight.style.top = `${rect.top - pad}px`;
+        this.tutSpotlight.style.left = `${rect.left - pad}px`;
+        this.tutSpotlight.style.width = `${rect.width + pad * 2}px`;
+        this.tutSpotlight.style.height = `${rect.height + pad * 2}px`;
+        this.tutSpotlight.style.display = "";
+        this.positionBubble(rect);
+      } else {
+        // Target off-screen: hide spotlight, center bubble
+        this.tutSpotlight.style.display = "none";
+        const bubbleW = Math.min(340, vw * 0.88);
+        this.tutBubble.classList.remove("tutorial-bubble--above");
+        this.tutBubble.style.top = `${Math.round(vh * 0.35)}px`;
+        this.tutBubble.style.bottom = "auto";
+        this.tutBubble.style.left = `${Math.round((vw - bubbleW) / 2)}px`;
+      }
     }
 
     // Re-trigger bubble animation
