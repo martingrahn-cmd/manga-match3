@@ -7,7 +7,7 @@
 | 1 | Ljud & musik | Enorm - spelet känns "dött" utan | Ej påbörjad |
 | 2 | Hint-system | Hög - förhindrar frustration | Implementerad |
 | 3 | Tutorial / Onboarding | Hög - onboarding av nya spelare | Klar |
-| 4 | Stjärn-system + nivåväljare | Hög - ger motivation att spela om | Ej påbörjad |
+| 4 | Stjärn-system + nivåväljare | Hög - ger motivation att spela om | Delvis (stjärnor klar, nivåväljare saknas) |
 | 5 | Swipe-stöd (mobil) | Hög - standard för match-3 | Implementerad |
 | 6 | Victory/Game over polish | Medium - bättre closure per nivå | Klar |
 | 7 | Power-ups & Shop | Medium - djupare gameplay | Ej påbörjad |
@@ -35,11 +35,11 @@
 - Visas bara första gången (localStorage), "Hoppa över"-knapp
 - Blockerar input under tutorial, hint-timer pausas
 
-## 4. Stjärn-system + Nivåväljare
-- 1-3 stjärnor per nivå baserat på poäng/drag kvar
-- Nivåväljare med karta/overview (manga-panel-stil)
-- Upplåsbara karaktärer eller skins som belöning
-- Persistent progression - spara vilka nivåer som är avklarade
+## 4. Stjärn-system + Nivåväljare (delvis ✅)
+- ~~1-3 stjärnor per nivå baserat på poäng/drag kvar~~ → Implementerat i result-overlay
+- ~~Persistent progression~~ → Bästa poäng sparas i localStorage
+- Nivåväljare med karta/overview (manga-panel-stil) — ej implementerat
+- Upplåsbara karaktärer eller skins som belöning — ej implementerat
 
 ## 5. Swipe-stöd (mobil)
 - Touch/swipe för att byta brickor (inte bara tap-tap)

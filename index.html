@@ -23,7 +23,15 @@
       <span class="mobile-hud__item"><span class="mobile-hud__label">Bana</span><strong id="mLevel">1</strong></span>
     </div>
 
-    <main class="game-shell">
+    <div id="levelSelect" class="level-select">
+      <div class="level-select__header">
+        <h1>Manga Match!</h1>
+        <p class="level-select__sub">Välj bana</p>
+      </div>
+      <div id="levelMap" class="level-map"></div>
+    </div>
+
+    <main class="game-shell" hidden>
       <section class="hud-panel">
         <h1>Manga Match!</h1>
         <p class="tagline">Combo panels. Anime energy.</p>
@@ -87,6 +95,7 @@
           <button id="restartBtn" type="button">Ny match</button>
           <button id="nextBtn" type="button">Nästa bana</button>
           <button id="shuffleBtn" type="button">Blanda</button>
+          <button id="mapBtn" type="button">Banväljare</button>
         </div>
 
         <p class="rules">
@@ -109,6 +118,7 @@
             <div class="result-actions">
               <button id="resultRetryBtn" type="button">Försök igen</button>
               <button id="resultNextBtn" type="button">Nästa bana</button>
+              <button id="resultMapBtn" type="button">Banväljare</button>
             </div>
           </div>
           <div id="resultConfetti" class="result-confetti" aria-hidden="true"></div>

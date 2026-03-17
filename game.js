@@ -286,6 +286,9 @@ class MangaMatch3 {
     this.resultBody = document.getElementById("resultBody");
     this.resultRetryBtn = document.getElementById("resultRetryBtn");
     this.resultNextBtn = document.getElementById("resultNextBtn");
+    this.levelSelectEl = document.getElementById("levelSelect");
+    this.levelMapEl = document.getElementById("levelMap");
+    this.gameShellEl = document.querySelector(".game-shell");
     this.resultStarsEl = document.getElementById("resultStars");
     this.resultConfettiEl = document.getElementById("resultConfetti");
 
@@ -324,7 +327,7 @@ class MangaMatch3 {
 
     this.initializeDailyLoop();
     this.setupBoardGrid();
-    this.loadLevel(0);
+    this.showLevelSelect();
 
     this.boardEl.addEventListener("click", (event) => {
       this.clearHint();
@@ -341,6 +344,13 @@ class MangaMatch3 {
       this.hideResultOverlay();
       this.goToNextLevel();
     });
+    this.resultMapBtn = document.getElementById("resultMapBtn");
+    this.resultMapBtn.addEventListener("click", () => {
+      this.hideResultOverlay();
+      this.showLevelSelect();
+    });
+    this.mapBtn = document.getElementById("mapBtn");
+    this.mapBtn.addEventListener("click", () => this.showLevelSelect());
 
     this.swipeStart = null;
     this.swipeThreshold = 30;
@@ -349,7 +359,6 @@ class MangaMatch3 {
     this.boardEl.addEventListener("touchend", (e) => this.onTouchEnd(e));
 
     this.initTutorial();
-    this.maybeTutorial();
   }
 
   setupBoardGrid() {
@@ -485,8 +494,10 @@ class MangaMatch3 {
     this.spawnOffsets.clear();
     this.fxLayerEl?.replaceChildren();
     this.hideResultOverlay();
+    this.hideLevelSelect();
     this.render();
     this.scheduleHint();
+    this.maybeTutorial();
   }
 
   resetCurrentLevel() {
@@ -496,10 +507,78 @@ class MangaMatch3 {
   goToNextLevel() {
     if (!this.levelComplete) return;
     if (this.levelIndex >= LEVELS.length - 1) {
-      this.setStatus("Alla banor är klara. Starta om för att spela igen.");
+      this.showLevelSelect();
       return;
     }
     this.loadLevel(this.levelIndex + 1);
+  }
+
+  showLevelSelect() {
+    this.clearHint();
+    this.levelSelectEl.hidden = false;
+    this.gameShellEl.hidden = true;
+    this.renderLevelMap();
+  }
+
+  hideLevelSelect() {
+    this.levelSelectEl.hidden = true;
+    this.gameShellEl.hidden = false;
+  }
+
+  isLevelUnlocked(index) {
+    if (index === 0) return true;
+    const prevLevel = LEVELS[index - 1];
+    const prev = this.getLevelProgress(prevLevel.id);
+    return prev !== null && prev.bestStars > 0;
+  }
+
+  renderLevelMap() {
+    this.levelMapEl.replaceChildren();
+    for (let i = 0; i < LEVELS.length; i += 1) {
+      const level = LEVELS[i];
+      const progress = this.getLevelProgress(level.id);
+      const unlocked = this.isLevelUnlocked(i);
+
+      const node = document.createElement("div");
+      node.className = `level-node${unlocked ? "" : " locked"}`;
+
+      const num = document.createElement("span");
+      num.className = "level-node__number";
+      num.textContent = level.id;
+
+      const name = document.createElement("span");
+      name.className = "level-node__name";
+      name.textContent = level.name;
+
+      const stars = document.createElement("div");
+      stars.className = "level-node__stars";
+      const earned = progress?.bestStars ?? 0;
+      for (let s = 0; s < 3; s += 1) {
+        const star = document.createElement("span");
+        star.className = s < earned ? "star-earned" : "star-empty";
+        star.textContent = "★";
+        stars.append(star);
+      }
+
+      const best = document.createElement("span");
+      best.className = "level-node__best";
+      if (unlocked && progress) {
+        best.textContent = `Bästa: ${progress.bestScore.toLocaleString("sv")} p`;
+      } else if (!unlocked) {
+        best.textContent = "";
+      }
+
+      node.append(num, name, stars, best);
+
+      if (unlocked) {
+        node.addEventListener("click", () => {
+          this.hideLevelSelect();
+          this.loadLevel(i);
+        });
+      }
+
+      this.levelMapEl.append(node);
+    }
   }
 
   buildObstacleGrid(obstacleMap) {
