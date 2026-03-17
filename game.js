@@ -2590,6 +2590,8 @@ class MangaMatch3 {
     this.tutActive = true;
     this.tutStep = -1;
     this.tutOverlay.hidden = false;
+    this.tutOverlay.style.display = "";
+    this.tutSpotlight.style.boxShadow = "";
     this.clearHint();
     this.tutorialNext();
   }
@@ -2666,7 +2668,10 @@ class MangaMatch3 {
   tutorialEnd() {
     this.tutActive = false;
     this.tutOverlay.hidden = true;
+    this.tutOverlay.style.display = "none";
+    this.tutSpotlight.style.boxShadow = "none";
     this.markTutorialDone();
+    this.render();
     this.scheduleHint();
   }
 
