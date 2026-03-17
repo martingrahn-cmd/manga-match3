@@ -9,7 +9,7 @@
 | 3 | Tutorial / Onboarding | Hög - onboarding av nya spelare | Ej påbörjad |
 | 4 | Stjärn-system + nivåväljare | Hög - ger motivation att spela om | Ej påbörjad |
 | 5 | Swipe-stöd (mobil) | Hög - standard för match-3 | Implementerad |
-| 6 | Victory/Game over polish | Medium - bättre closure per nivå | Implementerad |
+| 6 | Victory/Game over polish | Medium - bättre closure per nivå | Klar |
 | 7 | Power-ups & Shop | Medium - djupare gameplay | Ej påbörjad |
 | 8 | Koduppdelning i moduler | Medium - developer experience | Ej påbörjad |
 | 9 | Undo-funktion | Medium - quality of life | Ej påbörjad |
@@ -45,12 +45,12 @@
 - Fullscreen-läge på mobil
 - Testa layout på små skärmar
 
-## 6. Victory/Game Over Polish ✅ (grund)
+## 6. Victory/Game Over Polish ✅
 - ~~Tydligare feedback med poängsammanfattning~~ → Result overlay med poäng och drag använda
-- Visa stjärnor, bästa poäng, jämförelse med tidigare försök (ej implementerat ännu)
+- ~~Visa stjärnor, bästa poäng, jämförelse med tidigare försök~~ → 1-3 stjärnor baserat på drag kvar, bästa poäng sparas i localStorage
 - ~~"Försök igen" vs "Nästa nivå" knappar~~ → Implementerat i overlayt
-- Victory-animation med karaktärer som jublar (ej implementerat ännu)
-- Game over-animation med ledsna karaktärer (ej implementerat ännu)
+- ~~Victory-animation~~ → Confetti-animation med 40 partiklar + stjärn-pop-animation
+- ~~Game over-animation~~ → Shake-effekt på result-card + tomma gråa stjärnor
 
 ## 7. Power-ups & Shop
 - Hammare - ta bort en valfri bricka

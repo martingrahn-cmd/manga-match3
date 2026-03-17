@@ -20,6 +20,7 @@ const FEVER = {
   SCORE_MULTIPLIER: 1.45,
 };
 const DAILY_STORAGE_KEY = "manga-match-daily-v1";
+const PROGRESS_STORAGE_KEY = "manga-match-progress-v1";
 const DAILY_CHALLENGE_VERSION = 2;
 
 const TILE_TYPES = [
@@ -284,6 +285,8 @@ class MangaMatch3 {
     this.resultBody = document.getElementById("resultBody");
     this.resultRetryBtn = document.getElementById("resultRetryBtn");
     this.resultNextBtn = document.getElementById("resultNextBtn");
+    this.resultStarsEl = document.getElementById("resultStars");
+    this.resultConfettiEl = document.getElementById("resultConfetti");
 
     this.levelIndex = 0;
     this.currentLevel = null;
@@ -1563,6 +1566,65 @@ class MangaMatch3 {
     this.renderGoals();
   }
 
+  calculateStars() {
+    const movesLeft = this.moves;
+    const totalMoves = this.currentLevel.moves;
+    const ratio = movesLeft / totalMoves;
+    if (ratio >= 0.4) return 3;
+    if (ratio >= 0.15) return 2;
+    return 1;
+  }
+
+  loadProgress() {
+    try {
+      const raw = window.localStorage.getItem(PROGRESS_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  }
+
+  saveProgress(levelId, score, stars) {
+    const progress = this.loadProgress();
+    const key = `level-${levelId}`;
+    const prev = progress[key];
+    const bestScore = Math.max(score, prev?.bestScore ?? 0);
+    const bestStars = Math.max(stars, prev?.bestStars ?? 0);
+    progress[key] = { bestScore, bestStars };
+    try { window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress)); } catch {}
+  }
+
+  getLevelProgress(levelId) {
+    const progress = this.loadProgress();
+    return progress[`level-${levelId}`] ?? null;
+  }
+
+  renderStars(count, animated) {
+    this.resultStarsEl.innerHTML = "";
+    for (let i = 0; i < 3; i++) {
+      const star = document.createElement("span");
+      star.className = `result-star ${i < count ? "earned" : "empty"}`;
+      star.textContent = "★";
+      if (animated && i < count) {
+        star.style.animationDelay = `${300 + i * 250}ms`;
+      }
+      this.resultStarsEl.append(star);
+    }
+  }
+
+  spawnConfetti() {
+    this.resultConfettiEl.innerHTML = "";
+    const colors = ["#ff4f9e", "#25d7ee", "#ffd25f", "#9cf7d8", "#c579ff", "#ff7a3a"];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement("span");
+      piece.className = "confetti-piece";
+      piece.style.setProperty("--x", `${Math.random() * 100}%`);
+      piece.style.setProperty("--drift", `${(Math.random() - 0.5) * 200}px`);
+      piece.style.setProperty("--delay", `${Math.random() * 600}ms`);
+      piece.style.setProperty("--duration", `${1200 + Math.random() * 800}ms`);
+      piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      this.resultConfettiEl.append(piece);
+    }
+  }
+
   showResultOverlay(type) {
     const isVictory = type === "victory";
     this.resultOverlay.hidden = false;
@@ -1571,10 +1633,18 @@ class MangaMatch3 {
     this.resultTitle.textContent = isVictory ? "Stage Clear!" : "Game Over";
 
     const movesUsed = this.currentLevel.moves - this.moves;
+    const stars = isVictory ? this.calculateStars() : 0;
     const lines = [];
+
     if (isVictory) {
       lines.push(`Bana ${this.currentLevel.id}: ${this.currentLevel.name}`);
+      this.saveProgress(this.currentLevel.id, this.score, stars);
+      const prev = this.getLevelProgress(this.currentLevel.id);
+      if (prev && prev.bestScore > this.score) {
+        lines.push(`<span class="result-detail">Bästa: ${prev.bestScore.toLocaleString("sv")} p</span>`);
+      }
     }
+
     lines.push(`<span class="result-score">${this.score.toLocaleString("sv")} p</span>`);
     lines.push(`<span class="result-detail">${movesUsed} drag använda av ${this.currentLevel.moves}</span>`);
 
@@ -1585,13 +1655,21 @@ class MangaMatch3 {
       }
     }
 
+    this.renderStars(stars, isVictory);
     this.resultBody.innerHTML = lines.join("");
     this.resultNextBtn.hidden = !isVictory || this.levelIndex >= LEVELS.length - 1;
     this.resultRetryBtn.textContent = isVictory ? "Spela igen" : "Försök igen";
+
+    if (isVictory) {
+      this.spawnConfetti();
+    } else {
+      this.resultConfettiEl.innerHTML = "";
+    }
   }
 
   hideResultOverlay() {
     this.resultOverlay.hidden = true;
+    this.resultConfettiEl.innerHTML = "";
   }
 
   manualShuffle() {
