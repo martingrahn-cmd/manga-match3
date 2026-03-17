@@ -2662,14 +2662,14 @@ class MangaMatch3 {
     this.tutBubble.classList.remove("tutorial-bubble--above");
 
     if (spaceBelow > 200) {
-      // Place below target
+      // Place below target – tail at top pointing up toward target
       this.tutBubble.style.top = `${targetRect.bottom + gap}px`;
       this.tutBubble.style.bottom = "auto";
+      this.tutBubble.classList.add("tutorial-bubble--above");
     } else if (spaceAbove > 200) {
-      // Place above target
+      // Place above target – tail at bottom pointing down toward target
       this.tutBubble.style.top = "auto";
       this.tutBubble.style.bottom = `${window.innerHeight - targetRect.top + gap}px`;
-      this.tutBubble.classList.add("tutorial-bubble--above");
     } else {
       // Center vertically
       this.tutBubble.style.top = `${Math.max(20, targetRect.top - 160)}px`;
