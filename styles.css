@@ -2105,6 +2105,179 @@ button:disabled {
   margin-top: 2px;
 }
 
+/* ── Tutorial ── */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #0008;
+  transition: background 300ms;
+}
+
+.tutorial-overlay[hidden] {
+  display: none !important;
+}
+
+.tutorial-spotlight {
+  position: absolute;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px #000000b0;
+  transition: all 400ms cubic-bezier(0.22, 0.68, 0.35, 1.08);
+  pointer-events: none;
+  z-index: 201;
+}
+
+.tutorial-spotlight::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 18px;
+  border: 3px solid #8af8ff;
+  animation: tut-pulse 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes tut-pulse {
+  0%, 100% { opacity: 0.6; box-shadow: 0 0 8px #8af8ff60; }
+  50% { opacity: 1; box-shadow: 0 0 20px #8af8ffb0; }
+}
+
+.tutorial-bubble {
+  position: absolute;
+  z-index: 202;
+  width: min(340px, 88vw);
+  padding: 20px 18px 16px;
+  border: 3px solid #2a3568;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 30% 20%, #ffffff10, transparent 50%),
+    linear-gradient(150deg, #1c2654, #141c42 50%, #1a244e);
+  box-shadow:
+    inset 0 1px #ffffff28,
+    0 8px 30px #00000080;
+  color: #d4daf0;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  animation: tut-bubble-in 350ms cubic-bezier(0.22, 0.68, 0.35, 1.08) both;
+  transition: top 350ms ease, left 350ms ease, bottom 350ms ease;
+}
+
+.tutorial-bubble__tail {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #1c2654;
+  border: 3px solid #2a3568;
+  border-top: none;
+  border-right: none;
+  transform: rotate(-45deg);
+  bottom: -12px;
+  left: 40px;
+}
+
+.tutorial-bubble--above .tutorial-bubble__tail {
+  bottom: auto;
+  top: -12px;
+  transform: rotate(135deg);
+}
+
+@keyframes tut-bubble-in {
+  0% { opacity: 0; transform: translateY(12px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tutorial-bubble__text {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.tutorial-bubble__text strong {
+  color: #8af8ff;
+  font-weight: 800;
+}
+
+.tutorial-bubble__text .tut-emoji {
+  font-size: 1.3em;
+  vertical-align: -0.1em;
+}
+
+.tutorial-bubble__btn {
+  display: inline-block;
+  padding: 8px 24px;
+  font-size: 0.95rem;
+  font-family: "Bangers", "Impact", sans-serif;
+  letter-spacing: 1px;
+  color: #0c1020;
+  background: linear-gradient(145deg, #8af8ff, #25d7ee);
+  border: 2px solid #1a8fa0;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: inset 0 1px #ffffffa0, 0 2px 0 #0e3a5a;
+  transition: transform 120ms;
+}
+
+.tutorial-bubble__btn:hover {
+  transform: scale(1.05);
+}
+
+.tutorial-bubble__btn:active {
+  transform: scale(0.97);
+}
+
+.tutorial-bubble__skip {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  color: #8090c0;
+  background: transparent;
+  border: 1px solid #3a4a80;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 150ms, border-color 150ms;
+}
+
+.tutorial-bubble__skip:hover {
+  color: #c8d0f0;
+  border-color: #6070a0;
+}
+
+/* Pointer arrow for "do this" steps */
+.tutorial-pointer {
+  position: absolute;
+  z-index: 203;
+  width: 36px;
+  height: 36px;
+  pointer-events: none;
+  animation: tut-pointer-bounce 0.8s ease-in-out infinite;
+}
+
+.tutorial-pointer::before {
+  content: "👆";
+  font-size: 28px;
+  display: block;
+}
+
+@keyframes tut-pointer-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* When tutorial is active, allow clicks through spotlight to the board */
+.tutorial-overlay.step-interactive .tutorial-spotlight {
+  pointer-events: none;
+}
+
+.tutorial-overlay.step-interactive {
+  pointer-events: none;
+}
+
+.tutorial-overlay.step-interactive .tutorial-bubble {
+  pointer-events: auto;
+}
+
 @media (max-width: 940px) {
   .game-shell {
     grid-template-columns: 1fr;
