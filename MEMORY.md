@@ -6,7 +6,7 @@
 |------|------------|----------|--------|
 | 1 | Ljud & musik | Enorm - spelet känns "dött" utan | Ej påbörjad |
 | 2 | Hint-system | Hög - förhindrar frustration | Implementerad |
-| 3 | Tutorial / Onboarding | Hög - onboarding av nya spelare | Ej påbörjad |
+| 3 | Tutorial / Onboarding | Hög - onboarding av nya spelare | Klar |
 | 4 | Stjärn-system + nivåväljare | Hög - ger motivation att spela om | Ej påbörjad |
 | 5 | Swipe-stöd (mobil) | Hög - standard för match-3 | Implementerad |
 | 6 | Victory/Game over polish | Medium - bättre closure per nivå | Klar |
@@ -28,10 +28,12 @@
 - "Inga drag kvar"-detektion → automatisk omflyttning av brädet (fanns redan)
 - Hint rensas vid klick/swipe, ny timer startas efter varje drag
 
-## 3. Tutorial / Onboarding
-- Interaktiv tutorial på nivå 1 med overlay-pilar och textbubblor
-- Stegvis introduktion av mekaniker (special pieces, fever, obstacles)
-- Manga-panel-stil med karaktärsdialog
+## 3. Tutorial / Onboarding ✅
+- ~~Interaktiv tutorial på nivå 1 med overlay-pilar och textbubblor~~ → 7-stegs tutorial med spotlight + manga-bubbla
+- ~~Stegvis introduktion av mekaniker~~ → Matcha → Mål → Poäng/Drag → Fever → Special-brickor → Stjärnor
+- Manga-panel-stil med pratbubbla (tail pekar på target)
+- Visas bara första gången (localStorage), "Hoppa över"-knapp
+- Blockerar input under tutorial, hint-timer pausas
 
 ## 4. Stjärn-system + Nivåväljare
 - 1-3 stjärnor per nivå baserat på poäng/drag kvar

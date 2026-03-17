@@ -21,6 +21,7 @@ const FEVER = {
 };
 const DAILY_STORAGE_KEY = "manga-match-daily-v1";
 const PROGRESS_STORAGE_KEY = "manga-match-progress-v1";
+const TUTORIAL_STORAGE_KEY = "manga-match-tutorial-done-v1";
 const DAILY_CHALLENGE_VERSION = 2;
 
 const TILE_TYPES = [
@@ -346,6 +347,9 @@ class MangaMatch3 {
     this.boardEl.addEventListener("touchstart", (e) => this.onTouchStart(e), { passive: false });
     this.boardEl.addEventListener("touchmove", (e) => this.onTouchMove(e), { passive: false });
     this.boardEl.addEventListener("touchend", (e) => this.onTouchEnd(e));
+
+    this.initTutorial();
+    this.maybeTutorial();
   }
 
   setupBoardGrid() {
@@ -573,7 +577,7 @@ class MangaMatch3 {
 
   onTileClick(event) {
     const tileButton = event.target.closest(".tile");
-    if (!tileButton || this.busy || this.levelComplete) return;
+    if (!tileButton || this.busy || this.levelComplete || this.tutActive) return;
 
     const row = Number(tileButton.dataset.row);
     const col = Number(tileButton.dataset.col);
@@ -629,7 +633,7 @@ class MangaMatch3 {
   }
 
   onTouchStart(event) {
-    if (this.busy || this.levelComplete) return;
+    if (this.busy || this.levelComplete || this.tutActive) return;
     const touch = event.touches[0];
     const pos = this.getTilePosFromTouch(touch);
     if (!pos) return;
@@ -1363,7 +1367,7 @@ class MangaMatch3 {
 
   scheduleHint() {
     this.clearHint();
-    if (this.busy || this.levelComplete) return;
+    if (this.busy || this.levelComplete || this.tutActive) return;
     this.hintTimer = window.setTimeout(() => {
       this.hintTimer = null;
       this.showHint();
@@ -2512,6 +2516,164 @@ class MangaMatch3 {
     return new Promise((resolve) => {
       window.setTimeout(resolve, ms);
     });
+  }
+
+  /* ── Tutorial system ── */
+
+  initTutorial() {
+    this.tutOverlay = document.getElementById("tutorialOverlay");
+    this.tutSpotlight = document.getElementById("tutorialSpotlight");
+    this.tutBubble = document.getElementById("tutorialBubble");
+    this.tutText = document.getElementById("tutorialText");
+    this.tutBtn = document.getElementById("tutorialBtn");
+    this.tutSkip = document.getElementById("tutorialSkip");
+    this.tutStep = -1;
+    this.tutActive = false;
+    this.tutPointer = null;
+
+    this.tutBtn.addEventListener("click", () => this.tutorialNext());
+    this.tutSkip.addEventListener("click", () => this.tutorialEnd());
+  }
+
+  shouldShowTutorial() {
+    try {
+      return !window.localStorage.getItem(TUTORIAL_STORAGE_KEY);
+    } catch { return false; }
+  }
+
+  markTutorialDone() {
+    try { window.localStorage.setItem(TUTORIAL_STORAGE_KEY, "1"); } catch {}
+  }
+
+  getTutorialSteps() {
+    return [
+      {
+        text: '<span class="tut-emoji">🌸</span> <strong>Välkommen till Manga Match!</strong><br>Matcha tre eller fler likadana brickor i rad för att samla poäng.',
+        target: () => this.boardEl,
+        btn: "Kör igång!",
+      },
+      {
+        text: 'Klicka på en bricka för att <strong>välja</strong> den, sedan klicka på en <strong>granne</strong> för att byta plats. Du kan också <strong>swipa</strong> på mobil!',
+        target: () => this.boardEl,
+        btn: "Förstår!",
+      },
+      {
+        text: '<span class="tut-emoji">🎯</span> Här ser du banans <strong>mål</strong>. Klara alla mål innan dragen tar slut!',
+        target: () => document.querySelector(".goals-panel"),
+        btn: "Nästa",
+      },
+      {
+        text: '<span class="tut-emoji">📊</span> Håll koll på <strong>poäng</strong>, <strong>drag kvar</strong> och din <strong>combo</strong>-multiplikator här.',
+        target: () => document.querySelector(".stat-grid"),
+        btn: "Nästa",
+      },
+      {
+        text: '<span class="tut-emoji">🔥</span> Bygg kedjor för att ladda <strong>Fever-mätaren</strong>! När den är full aktiveras Fever Mode med bonuspoäng.',
+        target: () => document.querySelector(".fever-panel"),
+        btn: "Nästa",
+      },
+      {
+        text: 'Matcha <strong>4 i rad</strong> för en linjeattack, <strong>5 i rad</strong> för färgbomb, och <strong>T/L-form</strong> för en bomb! Kombinera special-brickor för maximal effekt.',
+        target: () => document.querySelector(".rules") || this.boardEl,
+        btn: "Nästa",
+      },
+      {
+        text: '<span class="tut-emoji">⭐</span> Ju fler drag du har kvar, desto fler <strong>stjärnor</strong> får du! Sikta på 3 stjärnor för varje bana.',
+        target: () => this.boardEl,
+        btn: "Spela!",
+      },
+    ];
+  }
+
+  startTutorial() {
+    if (!this.tutOverlay) this.initTutorial();
+    this.tutActive = true;
+    this.tutStep = -1;
+    this.tutOverlay.hidden = false;
+    this.clearHint();
+    this.tutorialNext();
+  }
+
+  tutorialNext() {
+    const steps = this.getTutorialSteps();
+    this.tutStep += 1;
+
+    if (this.tutStep >= steps.length) {
+      this.tutorialEnd();
+      return;
+    }
+
+    const step = steps[this.tutStep];
+    this.tutText.innerHTML = step.text;
+    this.tutBtn.textContent = step.btn || "Nästa";
+
+    // Position spotlight
+    const targetEl = step.target();
+    if (targetEl) {
+      const rect = targetEl.getBoundingClientRect();
+      const pad = 8;
+      this.tutSpotlight.style.top = `${rect.top - pad}px`;
+      this.tutSpotlight.style.left = `${rect.left - pad}px`;
+      this.tutSpotlight.style.width = `${rect.width + pad * 2}px`;
+      this.tutSpotlight.style.height = `${rect.height + pad * 2}px`;
+
+      // Position bubble
+      this.positionBubble(rect);
+    }
+
+    // Re-trigger bubble animation
+    this.tutBubble.style.animation = "none";
+    void this.tutBubble.offsetHeight;
+    this.tutBubble.style.animation = "";
+  }
+
+  positionBubble(targetRect) {
+    const bubbleW = Math.min(340, window.innerWidth * 0.88);
+    const gap = 18;
+    const spaceBelow = window.innerHeight - targetRect.bottom;
+    const spaceAbove = targetRect.top;
+
+    this.tutBubble.classList.remove("tutorial-bubble--above");
+
+    if (spaceBelow > 200) {
+      // Place below target
+      this.tutBubble.style.top = `${targetRect.bottom + gap}px`;
+      this.tutBubble.style.bottom = "auto";
+    } else if (spaceAbove > 200) {
+      // Place above target
+      this.tutBubble.style.top = "auto";
+      this.tutBubble.style.bottom = `${window.innerHeight - targetRect.top + gap}px`;
+      this.tutBubble.classList.add("tutorial-bubble--above");
+    } else {
+      // Center vertically
+      this.tutBubble.style.top = `${Math.max(20, targetRect.top - 160)}px`;
+      this.tutBubble.style.bottom = "auto";
+    }
+
+    // Horizontal: center on target, clamped
+    const idealLeft = targetRect.left + targetRect.width / 2 - bubbleW / 2;
+    const clampedLeft = Math.max(12, Math.min(idealLeft, window.innerWidth - bubbleW - 12));
+    this.tutBubble.style.left = `${clampedLeft}px`;
+
+    // Adjust tail to point at target center
+    const tailTarget = targetRect.left + targetRect.width / 2 - clampedLeft;
+    const tail = this.tutBubble.querySelector(".tutorial-bubble__tail");
+    if (tail) {
+      tail.style.left = `${Math.max(20, Math.min(tailTarget - 10, bubbleW - 40))}px`;
+    }
+  }
+
+  tutorialEnd() {
+    this.tutActive = false;
+    this.tutOverlay.hidden = true;
+    this.markTutorialDone();
+    this.scheduleHint();
+  }
+
+  maybeTutorial() {
+    if (this.levelIndex === 0 && this.shouldShowTutorial()) {
+      window.setTimeout(() => this.startTutorial(), 600);
+    }
   }
 }
 
