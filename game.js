@@ -358,6 +358,7 @@ class MangaMatch3 {
     this.boardEl.addEventListener("touchmove", (e) => this.onTouchMove(e), { passive: false });
     this.boardEl.addEventListener("touchend", (e) => this.onTouchEnd(e));
 
+    this.initLevelPicker();
     this.initTutorial();
   }
 
@@ -2595,6 +2596,101 @@ class MangaMatch3 {
     return new Promise((resolve) => {
       window.setTimeout(resolve, ms);
     });
+  }
+
+  /* ── Level Picker ── */
+
+  initLevelPicker() {
+    this.pickerEl = document.getElementById("levelPicker");
+    this.pickerGridEl = document.getElementById("levelGrid");
+    this.pickerBtn = document.getElementById("pickerBtn");
+    this.pickerCloseBtn = document.getElementById("pickerCloseBtn");
+    this.pickerOpen = false;
+
+    this.pickerBtn.addEventListener("click", () => this.openLevelPicker());
+    this.pickerCloseBtn.addEventListener("click", () => this.closeLevelPicker());
+  }
+
+  openLevelPicker() {
+    this.pickerOpen = true;
+    this.renderLevelPicker();
+    this.pickerEl.hidden = false;
+    this.pickerEl.style.display = "";
+  }
+
+  closeLevelPicker() {
+    this.pickerOpen = false;
+    this.pickerEl.hidden = true;
+    this.pickerEl.style.display = "none";
+  }
+
+  getUnlockedLevelCount() {
+    const progress = this.loadProgress();
+    let unlocked = 1; // Level 1 always unlocked
+    for (let i = 0; i < LEVELS.length - 1; i++) {
+      const p = progress[`level-${LEVELS[i].id}`];
+      if (p && p.bestStars > 0) {
+        unlocked = i + 2; // Next level unlocked
+      } else {
+        break;
+      }
+    }
+    return Math.min(unlocked, LEVELS.length);
+  }
+
+  renderLevelPicker() {
+    const progress = this.loadProgress();
+    const unlockedCount = this.getUnlockedLevelCount();
+    this.pickerGridEl.innerHTML = "";
+
+    for (let i = 0; i < LEVELS.length; i++) {
+      const level = LEVELS[i];
+      const isLocked = i >= unlockedCount;
+      const isCurrent = i === this.levelIndex;
+      const p = progress[`level-${level.id}`];
+      const stars = p?.bestStars ?? 0;
+      const bestScore = p?.bestScore ?? 0;
+
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "level-card";
+      if (isLocked) card.classList.add("level-card--locked");
+      else if (isCurrent) card.classList.add("level-card--current");
+      else if (stars > 0) card.classList.add("level-card--cleared");
+
+      card.disabled = isLocked;
+
+      let starsHtml = "";
+      for (let s = 0; s < 3; s++) {
+        starsHtml += `<span class="level-card__star ${s < stars ? "level-card__star--earned" : "level-card__star--empty"}">★</span>`;
+      }
+
+      let detailHtml = "";
+      if (isLocked) {
+        detailHtml = `<span class="level-card__lock">🔒</span>`;
+      } else if (bestScore > 0) {
+        detailHtml = `<span class="level-card__best">Bästa: ${bestScore.toLocaleString("sv")} p</span>`;
+      }
+
+      card.innerHTML = `
+        <span class="level-card__number">${level.id}</span>
+        <p class="level-card__name">${level.name}</p>
+        <div class="level-card__stars">${starsHtml}</div>
+        ${detailHtml}
+      `;
+
+      if (!isLocked) {
+        card.addEventListener("click", () => {
+          this.closeLevelPicker();
+          this.loadLevel(i);
+        });
+      }
+
+      // Stagger animation
+      card.style.animation = `picker-fade-in 300ms ${80 * i}ms ease-out both`;
+
+      this.pickerGridEl.append(card);
+    }
   }
 
   /* ── Tutorial system ── */
