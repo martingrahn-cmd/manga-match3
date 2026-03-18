@@ -355,7 +355,17 @@ class MangaMatch3 {
 
     this.initLevelPicker();
     this.initTutorial();
-    this.maybeTutorial();
+
+    // Onboarding flow: new players get tutorial, returning players get level picker
+    const isNewPlayer = this.shouldShowTutorial();
+    if (isNewPlayer) {
+      // Hide picker button until tutorial is done
+      this.pickerBtn.hidden = true;
+      this.maybeTutorial();
+    } else {
+      // Returning player: open level picker as start screen
+      this.openLevelPicker();
+    }
   }
 
   setupBoardGrid() {
@@ -2798,6 +2808,8 @@ class MangaMatch3 {
     this.markTutorialDone();
     this.render();
     this.scheduleHint();
+    // Reveal picker button now that tutorial is complete
+    if (this.pickerBtn) this.pickerBtn.hidden = false;
   }
 
   maybeTutorial() {
