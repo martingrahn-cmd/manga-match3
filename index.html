@@ -87,6 +87,7 @@
           <button id="restartBtn" type="button">Ny match</button>
           <button id="nextBtn" type="button">Nästa bana</button>
           <button id="shuffleBtn" type="button">Blanda</button>
+          <button id="pickerBtn" type="button" class="picker-btn">Välj bana</button>
         </div>
 
         <p class="rules">
@@ -109,6 +110,7 @@
             <div class="result-actions">
               <button id="resultRetryBtn" type="button">Försök igen</button>
               <button id="resultNextBtn" type="button">Nästa bana</button>
+              <button id="resultPickerBtn" type="button">Välj bana</button>
             </div>
           </div>
           <div id="resultConfetti" class="result-confetti" aria-hidden="true"></div>
@@ -116,6 +118,18 @@
         <div class="manga-strip bottom"></div>
       </section>
     </main>
+
+    <!-- Level picker overlay -->
+    <div id="levelPicker" class="level-picker" hidden>
+      <div class="level-picker__inner">
+        <div class="level-picker__header">
+          <h1 class="level-picker__title">Manga Match!</h1>
+          <p class="level-picker__subtitle">Välj bana</p>
+        </div>
+        <div id="levelGrid" class="level-picker__grid"></div>
+        <button id="pickerCloseBtn" class="level-picker__close" type="button">Tillbaka</button>
+      </div>
+    </div>
 
     <!-- Tutorial overlay -->
     <div id="tutorialOverlay" class="tutorial-overlay" hidden>

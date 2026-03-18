@@ -1974,6 +1974,7 @@ button:disabled {
   display: flex;
   gap: 10px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .result-actions button {
@@ -1982,12 +1983,23 @@ button:disabled {
   font-size: 0.95rem;
 }
 
-.result-overlay.victory .result-actions button:last-child {
+.result-overlay.victory #resultNextBtn {
   background: linear-gradient(145deg, #8af8ff, #25d7ee);
 }
 
-.result-overlay.game-over .result-actions button:last-child {
+.result-overlay.game-over #resultNextBtn {
   display: none;
+}
+
+#resultPickerBtn {
+  background: linear-gradient(135deg, #2a3568, #1c2654) !important;
+  border-color: #3a4a8a !important;
+  color: #8ea4cc !important;
+}
+
+#resultPickerBtn:hover {
+  border-color: #25d7ee !important;
+  color: #25d7ee !important;
 }
 
 @keyframes result-fade-in {
@@ -2590,6 +2602,294 @@ button:disabled {
 
   .sprite--tile {
     --sprite-size: 120%;
+  }
+}
+
+/* ── Level Picker ── */
+.level-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background:
+    radial-gradient(ellipse at 30% 20%, #1e2a6a 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, #3a1248 0%, transparent 50%),
+    linear-gradient(160deg, #0d1230 0%, #1a1040 40%, #2d1045 100%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: picker-fade-in 350ms ease-out both;
+}
+
+.level-picker[hidden] {
+  display: none !important;
+}
+
+@keyframes picker-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.level-picker__inner {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.level-picker__header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.level-picker__title {
+  font-family: "Bangers", cursive;
+  font-size: clamp(2.2rem, 8vw, 3.6rem);
+  color: #fff;
+  text-shadow:
+    3px 3px 0 #1a1040,
+    -1px -1px 0 #1a1040,
+    0 0 20px #8af8ff60,
+    0 0 40px #c579ff40;
+  letter-spacing: 2px;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.level-picker__subtitle {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-size: 1.1rem;
+  color: #8ea4cc;
+  margin: 6px 0 0;
+  letter-spacing: 1px;
+}
+
+.level-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* ── Level Card ── */
+.level-card {
+  position: relative;
+  padding: 18px 16px 16px;
+  border-radius: 16px;
+  border: 3px solid #2a3a7a;
+  background:
+    radial-gradient(circle at 30% 20%, #ffffff08, transparent 50%),
+    linear-gradient(150deg, #1c2654, #141c42 50%, #1a244e);
+  box-shadow:
+    inset 0 1px #ffffff18,
+    0 4px 20px #00000060;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.level-card::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8af8ff80, transparent);
+  border-radius: 2px;
+}
+
+.level-card:hover:not(.level-card--locked) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    inset 0 1px #ffffff28,
+    0 8px 30px #00000080,
+    0 0 15px #8af8ff30;
+  border-color: #4a5aaa;
+}
+
+.level-card:active:not(.level-card--locked) {
+  transform: scale(0.97);
+}
+
+.level-card--locked {
+  cursor: not-allowed;
+  opacity: 0.45;
+  border-color: #1a2248;
+}
+
+.level-card--locked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #0b102a60;
+  border-radius: 13px;
+}
+
+.level-card--current {
+  border-color: #25d7ee;
+  box-shadow:
+    inset 0 1px #ffffff28,
+    0 4px 20px #25d7ee30,
+    0 0 12px #25d7ee20;
+}
+
+.level-card--cleared {
+  border-color: #3a5a8a;
+}
+
+/* Card content */
+.level-card__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #25d7ee, #1ab8d4);
+  color: #0b102a;
+  font-family: "Bangers", cursive;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 8px #25d7ee40;
+}
+
+.level-card--locked .level-card__number {
+  background: #2a3568;
+  color: #5a6a8a;
+  box-shadow: none;
+}
+
+.level-card__name {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #d4daf0;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+.level-card--locked .level-card__name {
+  color: #5a6a8a;
+}
+
+.level-card__stars {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.level-card__star {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.level-card__star--earned {
+  color: #ffd25f;
+  text-shadow: 0 0 8px #ffd25f80;
+}
+
+.level-card__star--empty {
+  color: #2a3568;
+}
+
+.level-card__best {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-size: 0.82rem;
+  color: #6a7aaa;
+}
+
+.level-card__lock {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  font-size: 1.2rem;
+  z-index: 2;
+  opacity: 0.7;
+}
+
+/* Speed lines decoration on cards */
+.level-card--cleared::before {
+  background: linear-gradient(90deg, transparent, #ffd25f60, transparent);
+}
+
+.level-card--current::before {
+  background: linear-gradient(90deg, transparent, #25d7ee, transparent);
+  animation: card-shine 2s ease-in-out infinite;
+}
+
+@keyframes card-shine {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Manga speed lines bg effect */
+.level-picker__inner::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: -20%;
+  width: 140%;
+  height: 100%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 40%,
+    transparent 0deg,
+    #ffffff03 2deg,
+    transparent 4deg
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Close button */
+.level-picker__close {
+  display: block;
+  margin: 28px auto 0;
+  padding: 12px 36px;
+  border: 3px solid #2a3568;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #1c2654, #141c42);
+  color: #8ea4cc;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.level-picker__close:hover {
+  border-color: #4a5aaa;
+  color: #d4daf0;
+  transform: translateY(-2px);
+}
+
+/* Picker button in controls */
+.picker-btn {
+  background: linear-gradient(135deg, #2a3568, #1c2654) !important;
+  border-color: #3a4a8a !important;
+  color: #8ea4cc !important;
+}
+
+.picker-btn:hover {
+  border-color: #25d7ee !important;
+  color: #25d7ee !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .level-picker__inner {
+    padding: 20px 12px 40px;
+  }
+
+  .level-picker__grid {
+    gap: 10px;
+  }
+
+  .level-card {
+    padding: 14px 12px 12px;
+    min-height: 100px;
+  }
+
+  .level-card__name {
+    font-size: 0.9rem;
   }
 }
 
