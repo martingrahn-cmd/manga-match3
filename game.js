@@ -2872,6 +2872,8 @@ class MangaMatch3 {
     this.markTutorialDone();
     this.render();
     this.scheduleHint();
+    // Reveal picker button now that tutorial is complete
+    if (this.pickerBtn) this.pickerBtn.hidden = false;
   }
 
   maybeTutorial() {
