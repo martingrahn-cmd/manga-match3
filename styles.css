@@ -2893,6 +2893,439 @@ button:disabled {
   }
 }
 
+/* ── Coin HUD ── */
+.stat-card--coins {
+  background: linear-gradient(135deg, #2a1a3a, #1c1230) !important;
+  border-color: #ffd25f40 !important;
+}
+
+.stat-card--coins .label {
+  color: #ffd25f;
+}
+
+.stat-card--coins strong {
+  color: #ffd25f !important;
+}
+
+.result-coins {
+  display: block;
+  color: #ffd25f;
+  font-family: "Bangers", cursive;
+  font-size: 1.2rem;
+  margin-top: 4px;
+  text-shadow: 0 0 8px #ffd25f60;
+}
+
+/* ── Shop Overlay ── */
+.shop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  background:
+    radial-gradient(ellipse at 20% 30%, #2a1040 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, #1a2a5a 0%, transparent 50%),
+    linear-gradient(160deg, #120a20, #1a1040 40%, #0d1230);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: picker-fade-in 300ms ease-out both;
+}
+
+.shop-overlay[hidden] {
+  display: none !important;
+}
+
+.shop-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.shop-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.shop-title {
+  font-family: "Bangers", cursive;
+  font-size: clamp(2rem, 7vw, 3rem);
+  color: #ffd25f;
+  text-shadow:
+    2px 2px 0 #1a1040,
+    0 0 20px #ffd25f40;
+  margin: 0;
+  letter-spacing: 3px;
+}
+
+.shop-coins {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-size: 1.1rem;
+  color: #ffd25f;
+  margin: 8px 0 0;
+}
+
+.shop-coins strong {
+  font-size: 1.4rem;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+/* ── Shop Card ── */
+.shop-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 12px 14px;
+  border-radius: 16px;
+  border: 3px solid #3a2a5a;
+  background:
+    radial-gradient(circle at 40% 20%, #ffffff08, transparent 50%),
+    linear-gradient(150deg, #241848, #1a1240);
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  text-align: center;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  color: #d4daf0;
+}
+
+.shop-card:hover {
+  transform: translateY(-3px);
+  border-color: #ffd25f;
+  box-shadow: 0 0 18px #ffd25f30;
+}
+
+.shop-card:active {
+  transform: scale(0.95);
+}
+
+.shop-card--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.shop-card--disabled:hover {
+  transform: none;
+  border-color: #3a2a5a;
+  box-shadow: none;
+}
+
+.shop-card__icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  margin-bottom: 6px;
+  display: block;
+  text-shadow: 0 0 12px #8af8ff60;
+}
+
+.shop-card__name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.shop-card__desc {
+  font-size: 0.78rem;
+  color: #8a9ac0;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.shop-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.shop-card__cost {
+  color: #ffd25f;
+  font-weight: 700;
+}
+
+.shop-card__owned {
+  background: #25d7ee30;
+  color: #25d7ee;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.shop-close-btn {
+  display: block;
+  margin: 24px auto 0;
+  padding: 12px 36px;
+  border: 3px solid #3a2a5a;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #241848, #1a1240);
+  color: #8ea4cc;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.shop-close-btn:hover {
+  border-color: #ffd25f;
+  color: #ffd25f;
+  transform: translateY(-2px);
+}
+
+/* ── Level Picker Footer ── */
+.level-picker__footer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.level-picker__shop-btn {
+  padding: 12px 36px;
+  border: 3px solid #ffd25f50;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #2a1a3a, #1c1230);
+  color: #ffd25f;
+  font-family: "Bangers", cursive;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.level-picker__shop-btn:hover {
+  border-color: #ffd25f;
+  box-shadow: 0 0 14px #ffd25f30;
+  transform: translateY(-2px);
+}
+
+.level-picker__close {
+  margin: 0 !important;
+}
+
+/* ── Prep Screen ── */
+.prep-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 155;
+  background:
+    radial-gradient(ellipse at 50% 30%, #1e2a6a 0%, transparent 60%),
+    linear-gradient(160deg, #0d1230, #1a1040 50%, #2d1045);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: picker-fade-in 300ms ease-out both;
+}
+
+.prep-overlay[hidden] {
+  display: none !important;
+}
+
+.prep-inner {
+  max-width: 420px;
+  width: 90%;
+  padding: 32px 28px;
+  border-radius: 20px;
+  border: 3px solid #2a3a7a;
+  background:
+    radial-gradient(circle at 30% 20%, #ffffff06, transparent 50%),
+    linear-gradient(150deg, #1c2654, #141c42);
+  box-shadow: 0 8px 40px #00000080;
+}
+
+.prep-title {
+  font-family: "Bangers", cursive;
+  font-size: 1.6rem;
+  color: #25d7ee;
+  text-align: center;
+  margin: 0 0 20px;
+  text-shadow: 0 0 12px #25d7ee40;
+}
+
+.prep-section {
+  margin-bottom: 18px;
+}
+
+.prep-label {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #6a7aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 8px;
+}
+
+.prep-goals {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.prep-goals li {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-size: 0.95rem;
+  color: #d4daf0;
+  padding: 6px 12px;
+  border-left: 3px solid #25d7ee40;
+  margin-bottom: 4px;
+}
+
+.prep-powerups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prep-powerup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 2px solid #2a3568;
+  background: #141c42;
+  color: #8ea4cc;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.prep-powerup:hover {
+  border-color: #4a5aaa;
+}
+
+.prep-powerup--active {
+  border-color: #25d7ee;
+  background: #1a2a5a;
+  color: #25d7ee;
+  box-shadow: 0 0 10px #25d7ee20;
+}
+
+.prep-powerup__icon {
+  font-size: 1.2rem;
+}
+
+.prep-powerup__name {
+  font-weight: 700;
+}
+
+.prep-powerup__count {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.prep-empty {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-size: 0.85rem;
+  color: #5a6a8a;
+  margin: 0;
+  font-style: italic;
+}
+
+.prep-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.prep-back-btn {
+  padding: 12px 28px;
+  border: 3px solid #2a3568;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #1c2654, #141c42);
+  color: #8ea4cc;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.prep-back-btn:hover {
+  border-color: #4a5aaa;
+  color: #d4daf0;
+  transform: translateY(-2px);
+}
+
+.prep-start-btn {
+  padding: 12px 36px;
+  border: 3px solid #25d7ee60;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #25d7ee, #1ab8d4);
+  color: #0b102a;
+  font-family: "Bangers", cursive;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 180ms ease;
+  box-shadow: 0 4px 16px #25d7ee40;
+}
+
+.prep-start-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 24px #25d7ee50;
+}
+
+.prep-start-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── Active Power-up Bar (in-game) ── */
+.active-powerup-bar {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 8px;
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.active-powerup-bar[hidden] {
+  display: none !important;
+}
+
+.active-pu-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  border: 2px solid #25d7ee60;
+  background: linear-gradient(150deg, #1a2a5a, #0d1230);
+  color: #25d7ee;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+  animation: pu-pulse 2s ease-in-out infinite;
+}
+
+.active-pu-btn:hover {
+  border-color: #25d7ee;
+  box-shadow: 0 0 12px #25d7ee40;
+  transform: scale(1.05);
+}
+
+.active-pu-btn__icon {
+  font-size: 1.1rem;
+}
+
+@keyframes pu-pulse {
+  0%, 100% { box-shadow: 0 0 6px #25d7ee20; }
+  50% { box-shadow: 0 0 14px #25d7ee40; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
