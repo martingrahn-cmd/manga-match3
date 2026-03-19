@@ -1382,7 +1382,7 @@ class MangaMatch3 {
   }
 
   isFrameCell(row, col) {
-    return this.obstacles[row][col]?.kind === "frame";
+    return this.obstacles[row]?.[col]?.kind === "frame";
   }
 
   key(row, col) {
@@ -2465,8 +2465,8 @@ class MangaMatch3 {
   }
 
   renderCell(row, col) {
-    const obstacle = this.obstacles[row][col];
-    const tile = this.board[row][col];
+    const obstacle = this.obstacles[row]?.[col] ?? null;
+    const tile = this.board[row]?.[col] ?? null;
     const button = this.getCellNode(row, col);
     const parts = this.getCellParts(row, col);
     if (!button || !parts) return;
@@ -2583,8 +2583,12 @@ class MangaMatch3 {
     this.pickerCloseBtn = document.getElementById("pickerCloseBtn");
     this.pickerOpen = false;
 
-    this.pickerBtn.addEventListener("click", () => this.openLevelPicker());
-    this.pickerCloseBtn.addEventListener("click", () => this.closeLevelPicker());
+    if (this.pickerBtn) {
+      this.pickerBtn.addEventListener("click", () => this.openLevelPicker());
+    }
+    if (this.pickerCloseBtn) {
+      this.pickerCloseBtn.addEventListener("click", () => this.closeLevelPicker());
+    }
   }
 
   openLevelPicker() {
