@@ -2817,7 +2817,10 @@ class MangaMatch3 {
     // Shop button in level picker
     const shopBtn = document.getElementById("shopOpenBtn");
     if (shopBtn) {
-      shopBtn.addEventListener("click", () => this.openShop());
+      shopBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.openShop();
+      });
     }
   }
 
