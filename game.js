@@ -351,7 +351,6 @@ class MangaMatch3 {
 
     this.initializeDailyLoop();
     this.setupBoardGrid();
-    this.showLevelSelect();
 
     this.boardEl.addEventListener("click", (event) => {
       this.clearHint();
@@ -387,6 +386,7 @@ class MangaMatch3 {
     this.initPrepScreen();
     this.updateCoinHUD();
     this.initTutorial();
+    this.showLevelSelect();
   }
 
   setupBoardGrid() {
@@ -547,13 +547,14 @@ class MangaMatch3 {
 
   showLevelSelect() {
     this.clearHint();
-    this.levelSelectEl.hidden = false;
     this.gameShellEl.hidden = true;
-    this.renderLevelMap();
+    this.levelSelectEl.hidden = true;
+    this.openLevelPicker();
   }
 
   hideLevelSelect() {
     this.levelSelectEl.hidden = true;
+    this.closeLevelPicker();
     this.gameShellEl.hidden = false;
   }
 
@@ -2651,7 +2652,10 @@ class MangaMatch3 {
       this.pickerBtn.addEventListener("click", () => this.openLevelPicker());
     }
     if (this.pickerCloseBtn) {
-      this.pickerCloseBtn.addEventListener("click", () => this.closeLevelPicker());
+      this.pickerCloseBtn.addEventListener("click", () => {
+        this.closeLevelPicker();
+        this.gameShellEl.hidden = false;
+      });
     }
   }
 
