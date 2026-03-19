@@ -22,6 +22,7 @@ const FEVER = {
 const DAILY_STORAGE_KEY = "manga-match-daily-v1";
 const PROGRESS_STORAGE_KEY = "manga-match-progress-v1";
 const TUTORIAL_STORAGE_KEY = "manga-match-tutorial-done-v1";
+const SHOP_STORAGE_KEY = "manga-match-shop-v1";
 const DAILY_CHALLENGE_VERSION = 2;
 
 const TILE_TYPES = [
@@ -248,6 +249,22 @@ const LEVELS = [
   },
 ];
 
+const POWERUPS = [
+  { id: "ink_blast", name: "Manga-Bläck", icon: "墨", desc: "Förstör alla brickor av en vald färg", cost: 80, type: "active" },
+  { id: "extra_moves", name: "Tidshopp", icon: "+3", desc: "+3 extra drag", cost: 60, type: "pre" },
+  { id: "fever_start", name: "Shōnen Boost", icon: "炎", desc: "Starta med 50% fever", cost: 100, type: "pre" },
+  { id: "bomb_3x3", name: "Panelbrytare", icon: "💥", desc: "Förstör ett 3×3-område", cost: 120, type: "active" },
+  { id: "sensei", name: "Sensei-blick", icon: "目", desc: "Visa bästa drag i 10s", cost: 40, type: "active" },
+];
+
+const COIN_REWARDS = {
+  STAR_1: 50,
+  STAR_2: 80,
+  STAR_3: 150,
+  DAILY_BASE: 100,
+  DAILY_STREAK_BONUS: 30,
+};
+
 class MangaMatch3 {
   constructor() {
     this.boardEl = document.getElementById("board");
@@ -310,6 +327,13 @@ class MangaMatch3 {
     this.feverActive = false;
     this.feverTurnsLeft = 0;
     this.feverActivatedThisTurn = false;
+
+    // Shop & power-ups
+    this.shopData = this.loadShopData();
+    this.activePowerups = [];
+    this.bomb3x3Pending = false;
+    this.inkBlastPending = false;
+
     this.dailyState = null;
     this.pendingDailyReward = null;
     this.dailyRewardStatus = "";
@@ -359,6 +383,9 @@ class MangaMatch3 {
     this.boardEl.addEventListener("touchend", (e) => this.onTouchEnd(e));
 
     this.initLevelPicker();
+    this.initShop();
+    this.initPrepScreen();
+    this.updateCoinHUD();
     this.initTutorial();
   }
 
@@ -661,7 +688,12 @@ class MangaMatch3 {
 
     const row = Number(tileButton.dataset.row);
     const col = Number(tileButton.dataset.col);
-    if (!this.inBounds(row, col) || this.isFrameCell(row, col) || !this.board[row][col]) return;
+    if (!this.inBounds(row, col)) return;
+
+    // Handle active power-up targeting
+    if ((this.bomb3x3Pending || this.inkBlastPending) && this.handlePowerupClick(row, col)) return;
+
+    if (this.isFrameCell(row, col) || !this.board[row][col]) return;
 
     const pos = { row, col };
 
@@ -1723,9 +1755,13 @@ class MangaMatch3 {
     if (isVictory) {
       lines.push(`Bana ${this.currentLevel.id}: ${this.currentLevel.name}`);
       this.saveProgress(this.currentLevel.id, this.score, stars);
+      const coinsEarned = this.awardLevelCoins(stars);
       const prev = this.getLevelProgress(this.currentLevel.id);
       if (prev && prev.bestScore > this.score) {
         lines.push(`<span class="result-detail">Bästa: ${prev.bestScore.toLocaleString("sv")} p</span>`);
+      }
+      if (coinsEarned > 0) {
+        lines.push(`<span class="result-coins">+${coinsEarned} コイン</span>`);
       }
     }
 
@@ -2614,6 +2650,7 @@ class MangaMatch3 {
   openLevelPicker() {
     this.pickerOpen = true;
     this.renderLevelPicker();
+    this.updateCoinHUD();
     this.pickerEl.hidden = false;
     this.pickerEl.style.display = "";
   }
@@ -2682,7 +2719,7 @@ class MangaMatch3 {
       if (!isLocked) {
         card.addEventListener("click", () => {
           this.closeLevelPicker();
-          this.loadLevel(i);
+          this.openPrepScreen(i);
         });
       }
 
@@ -2691,6 +2728,393 @@ class MangaMatch3 {
 
       this.pickerGridEl.append(card);
     }
+  }
+
+  /* ── Shop & Power-ups ── */
+
+  loadShopData() {
+    try {
+      const raw = window.localStorage.getItem(SHOP_STORAGE_KEY);
+      const data = raw ? JSON.parse(raw) : {};
+      return {
+        coins: Math.max(0, Math.floor(data.coins ?? 0)),
+        inventory: data.inventory ?? {},
+      };
+    } catch {
+      return { coins: 0, inventory: {} };
+    }
+  }
+
+  saveShopData() {
+    try {
+      window.localStorage.setItem(SHOP_STORAGE_KEY, JSON.stringify(this.shopData));
+    } catch {}
+  }
+
+  getCoins() {
+    return this.shopData.coins;
+  }
+
+  addCoins(amount) {
+    this.shopData.coins = Math.max(0, this.shopData.coins + amount);
+    this.saveShopData();
+    this.updateCoinHUD();
+  }
+
+  getInventoryCount(powerupId) {
+    return this.shopData.inventory[powerupId] ?? 0;
+  }
+
+  buyPowerup(powerupId) {
+    const pu = POWERUPS.find((p) => p.id === powerupId);
+    if (!pu) return false;
+    if (this.shopData.coins < pu.cost) return false;
+    this.shopData.coins -= pu.cost;
+    this.shopData.inventory[powerupId] = (this.shopData.inventory[powerupId] ?? 0) + 1;
+    this.saveShopData();
+    this.updateCoinHUD();
+    return true;
+  }
+
+  consumePowerup(powerupId) {
+    if ((this.shopData.inventory[powerupId] ?? 0) <= 0) return false;
+    this.shopData.inventory[powerupId] -= 1;
+    if (this.shopData.inventory[powerupId] <= 0) delete this.shopData.inventory[powerupId];
+    this.saveShopData();
+    return true;
+  }
+
+  awardLevelCoins(stars) {
+    const coinsByStars = [0, COIN_REWARDS.STAR_1, COIN_REWARDS.STAR_2, COIN_REWARDS.STAR_3];
+    const earned = coinsByStars[stars] ?? 0;
+    if (earned > 0) this.addCoins(earned);
+    return earned;
+  }
+
+  updateCoinHUD() {
+    const el = document.getElementById("coinDisplay");
+    if (el) el.textContent = this.getCoins().toLocaleString("sv");
+    const mEl = document.getElementById("mCoins");
+    if (mEl) mEl.textContent = this.getCoins().toLocaleString("sv");
+  }
+
+  /* ── Shop UI ── */
+
+  initShop() {
+    this.shopOverlay = document.getElementById("shopOverlay");
+    this.shopGrid = document.getElementById("shopGrid");
+    this.shopCloseBtn = document.getElementById("shopCloseBtn");
+    this.shopCoinsEl = document.getElementById("shopCoins");
+
+    if (this.shopCloseBtn) {
+      this.shopCloseBtn.addEventListener("click", () => this.closeShop());
+    }
+
+    // Shop button in level picker
+    const shopBtn = document.getElementById("shopOpenBtn");
+    if (shopBtn) {
+      shopBtn.addEventListener("click", () => this.openShop());
+    }
+  }
+
+  openShop() {
+    if (!this.shopOverlay) return;
+    this.renderShop();
+    this.shopOverlay.hidden = false;
+  }
+
+  closeShop() {
+    if (!this.shopOverlay) return;
+    this.shopOverlay.hidden = true;
+  }
+
+  renderShop() {
+    if (!this.shopGrid) return;
+    this.shopCoinsEl.textContent = this.getCoins().toLocaleString("sv");
+    this.shopGrid.innerHTML = "";
+
+    for (const pu of POWERUPS) {
+      const owned = this.getInventoryCount(pu.id);
+      const canAfford = this.getCoins() >= pu.cost;
+
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = `shop-card ${canAfford ? "" : "shop-card--disabled"}`;
+
+      card.innerHTML = `
+        <span class="shop-card__icon">${pu.icon}</span>
+        <span class="shop-card__name">${pu.name}</span>
+        <span class="shop-card__desc">${pu.desc}</span>
+        <span class="shop-card__footer">
+          <span class="shop-card__cost">コイン ${pu.cost}</span>
+          ${owned > 0 ? `<span class="shop-card__owned">×${owned}</span>` : ""}
+        </span>
+      `;
+
+      card.addEventListener("click", () => {
+        if (this.buyPowerup(pu.id)) {
+          this.renderShop();
+          this.showComboBurst("GET!");
+        }
+      });
+
+      this.shopGrid.append(card);
+    }
+  }
+
+  /* ── Pre-level Prep Screen ── */
+
+  initPrepScreen() {
+    this.prepOverlay = document.getElementById("prepOverlay");
+    this.prepTitle = document.getElementById("prepTitle");
+    this.prepGoals = document.getElementById("prepGoals");
+    this.prepPowerups = document.getElementById("prepPowerups");
+    this.prepStartBtn = document.getElementById("prepStartBtn");
+    this.prepBackBtn = document.getElementById("prepBackBtn");
+
+    if (this.prepStartBtn) {
+      this.prepStartBtn.addEventListener("click", () => this.startFromPrep());
+    }
+    if (this.prepBackBtn) {
+      this.prepBackBtn.addEventListener("click", () => this.closePrepScreen());
+    }
+
+    this.prepSelectedPowerups = [];
+  }
+
+  openPrepScreen(levelIndex) {
+    this.prepLevelIndex = levelIndex;
+    const level = LEVELS[levelIndex];
+    this.prepSelectedPowerups = [];
+
+    this.prepTitle.textContent = `Bana ${level.id}: ${level.name}`;
+
+    // Render goals
+    this.prepGoals.innerHTML = "";
+    for (const goal of level.goals) {
+      const li = document.createElement("li");
+      li.textContent = this.goalText(goal);
+      this.prepGoals.append(li);
+    }
+
+    this.renderPrepPowerups();
+    this.prepOverlay.hidden = false;
+  }
+
+  renderPrepPowerups() {
+    this.prepPowerups.innerHTML = "";
+    let hasAny = false;
+
+    for (const pu of POWERUPS) {
+      const owned = this.getInventoryCount(pu.id);
+      if (owned <= 0) continue;
+      hasAny = true;
+
+      const isSelected = this.prepSelectedPowerups.includes(pu.id);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `prep-powerup ${isSelected ? "prep-powerup--active" : ""}`;
+
+      btn.innerHTML = `
+        <span class="prep-powerup__icon">${pu.icon}</span>
+        <span class="prep-powerup__name">${pu.name}</span>
+        <span class="prep-powerup__count">×${owned}</span>
+      `;
+
+      btn.addEventListener("click", () => {
+        if (isSelected) {
+          this.prepSelectedPowerups = this.prepSelectedPowerups.filter((id) => id !== pu.id);
+        } else {
+          this.prepSelectedPowerups.push(pu.id);
+        }
+        this.renderPrepPowerups();
+      });
+
+      this.prepPowerups.append(btn);
+    }
+
+    if (!hasAny) {
+      const msg = document.createElement("p");
+      msg.className = "prep-empty";
+      msg.textContent = "Inga power-ups. Köp i butiken!";
+      this.prepPowerups.append(msg);
+    }
+  }
+
+  closePrepScreen() {
+    this.prepOverlay.hidden = true;
+    this.openLevelPicker();
+  }
+
+  startFromPrep() {
+    // Consume selected power-ups
+    const activated = [];
+    for (const puId of this.prepSelectedPowerups) {
+      if (this.consumePowerup(puId)) {
+        activated.push(puId);
+      }
+    }
+    this.activePowerups = activated;
+
+    this.prepOverlay.hidden = true;
+    this.loadLevel(this.prepLevelIndex);
+
+    // Apply pre-game power-ups
+    if (activated.includes("extra_moves")) {
+      this.moves += 3;
+      this.updateHUD();
+      this.showComboBurst("+3 DRAG!");
+    }
+    if (activated.includes("fever_start")) {
+      this.addFeverCharge(50);
+      window.setTimeout(() => this.showComboBurst("FEVER!"), 400);
+    }
+
+    this.updateCoinHUD();
+    this.renderActivePowerupBar();
+  }
+
+  /* ── Active power-up bar (in-game) ── */
+
+  renderActivePowerupBar() {
+    let bar = document.getElementById("activePowerupBar");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "activePowerupBar";
+      bar.className = "active-powerup-bar";
+      this.boardPanelEl.append(bar);
+    }
+    bar.innerHTML = "";
+
+    const activePUs = this.activePowerups.filter((id) => {
+      const pu = POWERUPS.find((p) => p.id === id);
+      return pu && pu.type === "active";
+    });
+
+    if (activePUs.length === 0) {
+      bar.hidden = true;
+      return;
+    }
+    bar.hidden = false;
+
+    for (const puId of activePUs) {
+      const pu = POWERUPS.find((p) => p.id === puId);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "active-pu-btn";
+      btn.innerHTML = `<span class="active-pu-btn__icon">${pu.icon}</span><span class="active-pu-btn__name">${pu.name}</span>`;
+      btn.addEventListener("click", () => this.usePowerup(puId));
+      bar.append(btn);
+    }
+  }
+
+  usePowerup(puId) {
+    if (this.busy || this.levelComplete) return;
+
+    if (puId === "sensei") {
+      this.activePowerups = this.activePowerups.filter((id) => id !== puId);
+      this.showHint();
+      this.showComboBurst("SENSEI!");
+      // Keep hint visible for 10s
+      this.clearHintTimeout = window.setTimeout(() => this.clearHint(), 10000);
+      this.renderActivePowerupBar();
+      return;
+    }
+
+    if (puId === "ink_blast") {
+      this.inkBlastPending = true;
+      this.bomb3x3Pending = false;
+      this.setStatus("Tryck på en bricka för att förstöra alla av den färgen!");
+      this.renderActivePowerupBar();
+      return;
+    }
+
+    if (puId === "bomb_3x3") {
+      this.bomb3x3Pending = true;
+      this.inkBlastPending = false;
+      this.setStatus("Tryck på en ruta för att spränga 3×3!");
+      this.renderActivePowerupBar();
+      return;
+    }
+  }
+
+  handlePowerupClick(row, col) {
+    if (this.inkBlastPending) {
+      this.inkBlastPending = false;
+      const tile = this.board[row][col];
+      if (!tile) return false;
+      const targetType = tile.type;
+
+      this.activePowerups = this.activePowerups.filter((id) => id !== "ink_blast");
+      this.renderActivePowerupBar();
+
+      // Clear all tiles of that color
+      const cleared = [];
+      for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          if (this.board[r][c] && this.board[r][c].type === targetType && !this.board[r][c].locked) {
+            cleared.push({ row: r, col: c });
+            this.board[r][c] = null;
+          }
+        }
+      }
+      if (cleared.length > 0) {
+        this.score += cleared.length * BASE_POINTS;
+        this.showComboBurst("墨 BLAST!");
+        this.updateHUD();
+        this.render();
+        this.busy = true;
+        window.setTimeout(async () => {
+          await this.applyGravityAnimated();
+          const spawned = this.fillEmptyTiles();
+          this.render();
+          await this.resolveCascade();
+          this.busy = false;
+          this.render();
+          this.postTurnChecks();
+        }, 300);
+      }
+      return true;
+    }
+
+    if (this.bomb3x3Pending) {
+      this.bomb3x3Pending = false;
+      this.activePowerups = this.activePowerups.filter((id) => id !== "bomb_3x3");
+      this.renderActivePowerupBar();
+
+      const impactSet = new Set();
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          const nr = row + dr;
+          const nc = col + dc;
+          if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
+            impactSet.add(this.key(nr, nc));
+            if (this.board[nr][nc] && !this.board[nr][nc].locked) {
+              this.board[nr][nc] = null;
+            }
+          }
+        }
+      }
+      this.applyImpactEffects(impactSet);
+      this.score += 9 * BASE_POINTS;
+      this.showComboBurst("💥 BOOM!");
+      this.updateHUD();
+      this.renderGoals();
+      this.render();
+      this.busy = true;
+      window.setTimeout(async () => {
+        await this.applyGravityAnimated();
+        const spawned = this.fillEmptyTiles();
+        this.render();
+        await this.resolveCascade();
+        this.busy = false;
+        this.render();
+        this.postTurnChecks();
+      }, 300);
+      return true;
+    }
+
+    return false;
   }
 
   /* ── Tutorial system ── */
