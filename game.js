@@ -1,3 +1,192 @@
+/* ── Audio Manager (Web Audio API) ── */
+
+class AudioManager {
+  constructor() {
+    this.ctx = null;
+    this.master = null;
+    this.muted = false;
+    this.volume = 0.35;
+  }
+
+  init() {
+    if (this.ctx) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = this.volume;
+      this.master.connect(this.ctx.destination);
+    } catch { /* no audio support */ }
+  }
+
+  ensure() {
+    if (!this.ctx) this.init();
+    if (this.ctx?.state === "suspended") this.ctx.resume();
+    return this.ctx && !this.muted;
+  }
+
+  setVolume(v) {
+    this.volume = Math.max(0, Math.min(1, v));
+    if (this.master) this.master.gain.value = this.volume;
+  }
+
+  toggleMute() {
+    this.muted = !this.muted;
+    if (this.master) this.master.gain.value = this.muted ? 0 : this.volume;
+    return this.muted;
+  }
+
+  // ── Utility: play a tone with envelope ──
+
+  tone(freq, type, duration, { attack = 0.01, decay = duration, vol = 0.3, delay = 0, detune = 0 } = {}) {
+    if (!this.ensure()) return;
+    const t = this.ctx.currentTime + delay;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    if (detune) osc.detune.value = detune;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(vol, t + attack);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + decay);
+    osc.connect(gain);
+    gain.connect(this.master);
+    osc.start(t);
+    osc.stop(t + decay + 0.05);
+  }
+
+  noise(duration, { vol = 0.15, delay = 0, attack = 0.005 } = {}) {
+    if (!this.ensure()) return;
+    const t = this.ctx.currentTime + delay;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * duration, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(vol, t + attack);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "highpass";
+    filter.frequency.value = 3000;
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.master);
+    src.start(t);
+    src.stop(t + duration + 0.05);
+  }
+
+  // ── Game SFX ──
+
+  swap() {
+    this.tone(520, "sine", 0.1, { vol: 0.25 });
+    this.tone(680, "sine", 0.1, { delay: 0.05, vol: 0.2 });
+  }
+
+  invalidSwap() {
+    this.tone(200, "square", 0.12, { vol: 0.15 });
+    this.tone(160, "square", 0.12, { delay: 0.08, vol: 0.12 });
+  }
+
+  match(chain = 1) {
+    const base = 440 + chain * 80;
+    this.tone(base, "sine", 0.15, { vol: 0.25 });
+    this.tone(base * 1.25, "sine", 0.12, { delay: 0.06, vol: 0.2 });
+    this.tone(base * 1.5, "sine", 0.1, { delay: 0.12, vol: 0.18 });
+  }
+
+  cascade(chain = 1) {
+    const base = 500 + chain * 100;
+    this.tone(base, "triangle", 0.12, { vol: 0.2 });
+    this.tone(base * 1.33, "triangle", 0.1, { delay: 0.05, vol: 0.18 });
+    this.tone(base * 1.67, "triangle", 0.08, { delay: 0.1, vol: 0.15 });
+  }
+
+  specialCreate() {
+    this.tone(600, "sine", 0.2, { vol: 0.3 });
+    this.tone(800, "sine", 0.18, { delay: 0.08, vol: 0.25 });
+    this.tone(1050, "sine", 0.25, { delay: 0.16, vol: 0.2 });
+    this.noise(0.15, { vol: 0.08, delay: 0.1 });
+  }
+
+  lineBlast() {
+    this.noise(0.2, { vol: 0.12 });
+    this.tone(300, "sawtooth", 0.2, { vol: 0.15 });
+    this.tone(600, "sine", 0.15, { delay: 0.05, vol: 0.2 });
+    this.tone(900, "sine", 0.1, { delay: 0.1, vol: 0.15 });
+  }
+
+  bombBlast() {
+    this.tone(80, "sine", 0.35, { vol: 0.35, attack: 0.005 });
+    this.tone(120, "square", 0.2, { vol: 0.15, delay: 0.02 });
+    this.noise(0.25, { vol: 0.18 });
+  }
+
+  colorBlast() {
+    for (let i = 0; i < 5; i++) {
+      this.tone(400 + i * 150, "sine", 0.15, { delay: i * 0.06, vol: 0.2 - i * 0.02 });
+    }
+    this.noise(0.3, { vol: 0.1, delay: 0.05 });
+  }
+
+  feverActivate() {
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((f, i) => {
+      this.tone(f, "sine", 0.2, { delay: i * 0.08, vol: 0.25 });
+      this.tone(f, "triangle", 0.15, { delay: i * 0.08 + 0.02, vol: 0.1 });
+    });
+  }
+
+  levelComplete() {
+    const melody = [523, 659, 784, 880, 1047];
+    melody.forEach((f, i) => {
+      this.tone(f, "sine", 0.25, { delay: i * 0.12, vol: 0.25 });
+      this.tone(f * 0.5, "triangle", 0.2, { delay: i * 0.12 + 0.03, vol: 0.1 });
+    });
+  }
+
+  gameOver() {
+    const notes = [440, 370, 311, 261];
+    notes.forEach((f, i) => {
+      this.tone(f, "sine", 0.3, { delay: i * 0.15, vol: 0.2 });
+    });
+  }
+
+  spawn() {
+    this.tone(800, "sine", 0.06, { vol: 0.1 });
+    this.tone(1000, "sine", 0.05, { delay: 0.03, vol: 0.08 });
+  }
+
+  gravity() {
+    this.tone(250, "sine", 0.08, { vol: 0.08 });
+  }
+
+  select() {
+    this.tone(660, "sine", 0.06, { vol: 0.15 });
+  }
+
+  deselect() {
+    this.tone(440, "sine", 0.05, { vol: 0.1 });
+  }
+
+  hint() {
+    this.tone(880, "sine", 0.1, { vol: 0.08 });
+    this.tone(1100, "sine", 0.08, { delay: 0.1, vol: 0.06 });
+  }
+
+  uiClick() {
+    this.tone(700, "sine", 0.04, { vol: 0.12 });
+  }
+
+  purchase() {
+    this.tone(523, "sine", 0.1, { vol: 0.2 });
+    this.tone(784, "sine", 0.15, { delay: 0.08, vol: 0.25 });
+    this.noise(0.08, { vol: 0.06, delay: 0.08 });
+  }
+}
+
+const sfx = new AudioManager();
+
 const BOARD_SIZE = 8;
 const BASE_POINTS = 100;
 const MOOD_VARIANTS = 3;
@@ -353,6 +542,7 @@ class MangaMatch3 {
     this.setupBoardGrid();
 
     this.boardEl.addEventListener("click", (event) => {
+      sfx.init();
       this.clearHint();
       this.onTileClick(event);
     });
@@ -708,12 +898,14 @@ class MangaMatch3 {
         return;
       }
       this.selected = pos;
+      sfx.select();
       this.render();
       return;
     }
 
     if (this.selected.row === row && this.selected.col === col) {
       this.selected = null;
+      sfx.deselect();
       this.render();
       return;
     }
@@ -750,6 +942,7 @@ class MangaMatch3 {
   }
 
   onTouchStart(event) {
+    sfx.init();
     if (this.busy || this.levelComplete || this.tutActive) return;
     const touch = event.touches[0];
     const pos = this.getTilePosFromTouch(touch);
@@ -833,6 +1026,7 @@ class MangaMatch3 {
 
     this.swapTiles(a, b);
     this.render();
+    sfx.swap();
     await this.animatePositions([a, b], "swap-pop", TIMING.SWAP_MS);
 
     const tileA = this.board[a.row][a.col];
@@ -841,6 +1035,7 @@ class MangaMatch3 {
     const found = this.findMatches();
 
     if (!includesSpecial && found.matchSet.size === 0) {
+      sfx.invalidSwap();
       await this.animatePositions([a, b], "swap-deny", TIMING.INVALID_MS);
       this.swapTiles(a, b);
       this.busy = false;
@@ -883,17 +1078,20 @@ class MangaMatch3 {
       }
       this.setStatus("MEGA COMBO! Dubbla färgbomber.");
       this.showComboBurst("MEGA!");
+      sfx.colorBlast();
       impactLevel = 3;
     } else if (isColorA) {
       this.collectTilesByType(tileB.type, clearSet);
       clearSet.add(this.key(a.row, a.col));
       this.setStatus("Färgbomb utlöst.");
       this.showComboBurst("COLOR!");
+      sfx.colorBlast();
     } else if (isColorB) {
       this.collectTilesByType(tileA.type, clearSet);
       clearSet.add(this.key(b.row, b.col));
       this.setStatus("Färgbomb utlöst.");
       this.showComboBurst("COLOR!");
+      sfx.colorBlast();
     } else {
       this.addSpecialArea(a.row, a.col, tileA.special, clearSet);
       this.addSpecialArea(b.row, b.col, tileB.special, clearSet);
@@ -901,7 +1099,10 @@ class MangaMatch3 {
       clearSet.add(this.key(b.row, b.col));
       this.setStatus("Specialkedja!");
       this.showComboBurst("CHAIN!");
-      impactLevel = 2 + Number(tileA.special === SPECIAL.BOMB || tileB.special === SPECIAL.BOMB);
+      const hasBomb = tileA.special === SPECIAL.BOMB || tileB.special === SPECIAL.BOMB;
+      const hasLine = [tileA.special, tileB.special].some(s => s === SPECIAL.LINE_H || s === SPECIAL.LINE_V);
+      if (hasBomb) sfx.bombBlast(); else if (hasLine) sfx.lineBlast(); else sfx.match(2);
+      impactLevel = 2 + Number(hasBomb);
     }
 
     const reactionSet = this.collectNeighborReactionSet(clearSet);
@@ -934,8 +1135,10 @@ class MangaMatch3 {
 
       chain += 1;
       this.combo = 1 + Math.min(2, chain * 0.25);
+      if (chain === 1) sfx.match(chain); else sfx.cascade(chain);
 
       const specialMap = this.determineSpecials(found.runs, localLastSwap);
+      if (specialMap.size > 0) sfx.specialCreate();
       const clearSet = this.expandClearBySpecial(found.matchSet);
       const filteredSpecialMap = this.applySpecialMapToClearSet(specialMap, clearSet);
       const impactSet = new Set([...clearSet, ...filteredSpecialMap.keys()]);
@@ -960,6 +1163,7 @@ class MangaMatch3 {
       await this.applyGravityAnimated();
       const spawned = this.fillEmptyTiles();
       this.render();
+      if (spawned.length > 0) sfx.spawn();
       await this.animateKeySet(spawned, "spawn-enter", TIMING.SPAWN_MS);
       this.consumeSpawnOffsets(spawned);
       this.spawnImpactFX(spawned, "spawn");
@@ -1304,6 +1508,7 @@ class MangaMatch3 {
   async applyGravityAnimated() {
     const moved = this.applyGravityStep();
     if (moved.length === 0) return false;
+    sfx.gravity();
 
     this.boardEl?.classList.add("gravity-phase");
     this.syncBoardInteractivity();
@@ -1504,6 +1709,7 @@ class MangaMatch3 {
 
   showHint() {
     if (this.busy || this.levelComplete) return;
+    sfx.hint();
     const move = this.findHintMove();
     if (!move) return;
     for (const pos of move) {
@@ -1659,6 +1865,7 @@ class MangaMatch3 {
       this.updateHUD();
       this.renderGoals();
 
+      sfx.levelComplete();
       if (this.levelIndex >= LEVELS.length - 1) {
         this.setStatus("Du klarade alla 10 banor! Finalpanelen är säkrad.");
         this.showComboBurst("VICTORY!");
@@ -1673,6 +1880,7 @@ class MangaMatch3 {
     if (this.moves <= 0) {
       this.levelComplete = true;
       this.updateHUD();
+      sfx.gameOver();
       this.showComboBurst("TRY AGAIN");
       window.setTimeout(() => this.showResultOverlay("game-over"), 1200);
       return;
@@ -2138,6 +2346,7 @@ class MangaMatch3 {
 
   activateFever() {
     if (this.feverActive) return;
+    sfx.feverActivate();
     this.feverActive = true;
     this.feverTurnsLeft = FEVER.TURNS;
     this.feverCharge = FEVER.MAX_CHARGE;
@@ -2730,6 +2939,8 @@ class MangaMatch3 {
 
       if (!isLocked) {
         card.addEventListener("click", () => {
+          sfx.init();
+          sfx.uiClick();
           this.closeLevelPicker();
           this.openPrepScreen(i);
         });
@@ -2785,6 +2996,7 @@ class MangaMatch3 {
     this.shopData.inventory[powerupId] = (this.shopData.inventory[powerupId] ?? 0) + 1;
     this.saveShopData();
     this.updateCoinHUD();
+    sfx.purchase();
     return true;
   }
 
@@ -2997,7 +3209,7 @@ class MangaMatch3 {
       bar = document.createElement("div");
       bar.id = "activePowerupBar";
       bar.className = "active-powerup-bar";
-      this.boardPanelEl.append(bar);
+      this.boardEl.parentElement.insertBefore(bar, this.boardEl);
     }
     bar.innerHTML = "";
 
