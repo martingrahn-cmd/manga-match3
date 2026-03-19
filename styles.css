@@ -3085,24 +3085,27 @@ button:disabled {
 }
 
 .level-picker__shop-btn {
-  display: inline-block;
-  margin-top: 12px;
-  padding: 10px 32px;
-  border: 3px solid #ffd25f50;
+  display: block;
+  margin: 16px auto 0;
+  padding: 12px 40px;
+  border: 3px solid #ffd25f;
   border-radius: 14px;
-  background: linear-gradient(150deg, #2a1a3a, #1c1230);
+  background: linear-gradient(150deg, #3a2040, #2a1240);
   color: #ffd25f;
   font-family: "Bangers", cursive;
-  font-size: 1.2rem;
-  letter-spacing: 2px;
+  font-size: 1.3rem;
+  letter-spacing: 3px;
   cursor: pointer;
   transition: all 180ms ease;
-  text-shadow: 0 0 8px #ffd25f40;
+  text-shadow: 0 0 10px #ffd25f60;
+  box-shadow: 0 0 16px #ffd25f30;
+  position: relative;
+  z-index: 10;
 }
 
 .level-picker__shop-btn:hover {
-  border-color: #ffd25f;
-  box-shadow: 0 0 14px #ffd25f30;
+  border-color: #ffe080;
+  box-shadow: 0 0 24px #ffd25f50;
   transform: translateY(-2px);
 }
 
