@@ -503,6 +503,8 @@ class MangaMatch3 {
     this.selected = null;
     this.busy = false;
     this.levelComplete = false;
+    this.bomb3x3Pending = false;
+    this.inkBlastPending = false;
 
     this.collectCounts = Array(TILE_TYPES.length).fill(0);
     this.clearedObstacleCounts = { ink: 0, frame: 0 };
@@ -533,7 +535,9 @@ class MangaMatch3 {
   }
 
   resetCurrentLevel() {
+    this.activePowerups = [];
     this.loadLevel(this.levelIndex);
+    this.renderActivePowerupBar();
   }
 
   goToNextLevel() {
