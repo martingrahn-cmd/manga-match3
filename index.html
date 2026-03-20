@@ -16,6 +16,114 @@
     <div class="bg-halo halo-a"></div>
     <div class="bg-halo halo-b"></div>
 
+    <!-- Main Menu -->
+    <div id="mainMenu" class="main-menu">
+      <div class="main-menu__inner">
+        <h1 class="main-menu__title">Manga Match!</h1>
+        <p class="main-menu__tagline">Combo panels. Anime energy.</p>
+        <nav class="main-menu__nav">
+          <button id="menuStartBtn" class="main-menu__btn main-menu__btn--start" type="button">スタート <span class="menu-sub">Start</span></button>
+          <button id="menuOptionsBtn" class="main-menu__btn" type="button">オプション <span class="menu-sub">Options</span></button>
+          <button id="menuHighscoreBtn" class="main-menu__btn" type="button">ハイスコア <span class="menu-sub">High Score</span></button>
+          <button id="menuAchievementsBtn" class="main-menu__btn" type="button">実績 <span class="menu-sub">Achievements</span></button>
+          <button id="menuHowtoBtn" class="main-menu__btn" type="button">遊び方 <span class="menu-sub">How to Play</span></button>
+          <button id="menuTutorialBtn" class="main-menu__btn" type="button">チュートリアル <span class="menu-sub">Tutorial</span></button>
+          <button id="menuCreditsBtn" class="main-menu__btn" type="button">クレジット <span class="menu-sub">Credits</span></button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Options overlay -->
+    <div id="optionsOverlay" class="menu-overlay" hidden>
+      <div class="menu-overlay__card">
+        <h2 class="menu-overlay__title">Options</h2>
+        <div class="options-list">
+          <div class="options-row">
+            <span class="options-label">Ljud</span>
+            <button id="optSoundBtn" class="options-toggle" type="button">PÅ</button>
+          </div>
+          <div class="options-row">
+            <span class="options-label">Volym</span>
+            <input id="optVolumeRange" class="options-range" type="range" min="0" max="100" value="35">
+          </div>
+          <div class="options-row">
+            <span class="options-label">Nollställ progress</span>
+            <button id="optResetBtn" class="options-toggle options-toggle--danger" type="button">Radera</button>
+          </div>
+        </div>
+        <button id="optBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+      </div>
+    </div>
+
+    <!-- High Score overlay -->
+    <div id="highscoreOverlay" class="menu-overlay" hidden>
+      <div class="menu-overlay__card">
+        <h2 class="menu-overlay__title">High Score</h2>
+        <div id="highscoreList" class="highscore-list"></div>
+        <button id="hsBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+      </div>
+    </div>
+
+    <!-- Achievements overlay -->
+    <div id="achievementsOverlay" class="menu-overlay" hidden>
+      <div class="menu-overlay__card menu-overlay__card--wide">
+        <h2 class="menu-overlay__title">Achievements</h2>
+        <div id="achievementsList" class="achievements-list"></div>
+        <button id="achBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+      </div>
+    </div>
+
+    <!-- How to Play overlay -->
+    <div id="howtoOverlay" class="menu-overlay" hidden>
+      <div class="menu-overlay__card menu-overlay__card--wide">
+        <h2 class="menu-overlay__title">How to Play</h2>
+        <div class="howto-content">
+          <div class="howto-section">
+            <h3>Grunderna</h3>
+            <p>Byt plats på två intilliggande brickor för att matcha <strong>3 eller fler</strong> i rad — horisontellt eller vertikalt.</p>
+          </div>
+          <div class="howto-section">
+            <h3>Special-brickor</h3>
+            <p><strong>4 i rad</strong> → Linjeattack (rensar hela raden eller kolumnen)</p>
+            <p><strong>5+ i rad</strong> → Färgbomb (rensar alla brickor av en färg)</p>
+            <p><strong>T/L-form</strong> → Bomb (rensar 3×3 område)</p>
+          </div>
+          <div class="howto-section">
+            <h3>Hinder</h3>
+            <p><strong>Bläck</strong> — Har 2 lager. Skadas av matchningar intill.</p>
+            <p><strong>Ramar</strong> — Blockerar rutor. Förstörs av matchningar intill.</p>
+            <p><strong>Lås</strong> — Brickan kan inte flyttas. Matcha den för att låsa upp.</p>
+          </div>
+          <div class="howto-section">
+            <h3>Fever Mode</h3>
+            <p>Bygg kedjor och skapa specials för att ladda fever-metern. Vid 100% aktiveras <strong>Fever Mode</strong> — alla poäng multipliceras i 5 drag!</p>
+          </div>
+          <div class="howto-section">
+            <h3>Stjärnor</h3>
+            <p>Klara nivån med drag kvar för stjärnor. Fler drag kvar = fler stjärnor. Samla stjärnor för att låsa upp nya banor!</p>
+          </div>
+        </div>
+        <button id="howtoBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+      </div>
+    </div>
+
+    <!-- Credits overlay -->
+    <div id="creditsOverlay" class="menu-overlay" hidden>
+      <div class="menu-overlay__card">
+        <h2 class="menu-overlay__title">Credits</h2>
+        <div class="credits-content">
+          <p class="credits-role">Game Design & Code</p>
+          <p class="credits-name">SmartProc Games</p>
+          <p class="credits-role">AI Assistant</p>
+          <p class="credits-name">Claude (Anthropic)</p>
+          <p class="credits-role">Platform</p>
+          <p class="credits-name">GameVolt.io</p>
+          <p class="credits-copy">© 2026 SmartProc Games</p>
+        </div>
+        <button id="credBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+      </div>
+    </div>
+
     <div class="mobile-hud" aria-hidden="true">
       <span class="mobile-hud__item"><span class="mobile-hud__label">Score</span><strong id="mScore">0</strong></span>
       <span class="mobile-hud__item"><span class="mobile-hud__label">Drag</span><strong id="mMoves">25</strong></span>
@@ -143,6 +251,7 @@
         <div id="levelGrid" class="level-picker__grid"></div>
         <div class="level-picker__footer">
           <button id="pickerCloseBtn" class="level-picker__close" type="button">Tillbaka</button>
+          <button id="pickerMenuBtn" class="level-picker__close" type="button">Huvudmeny</button>
         </div>
       </div>
     </div>

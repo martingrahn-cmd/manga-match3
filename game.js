@@ -233,182 +233,295 @@ const SPECIAL = {
 };
 
 const LEVELS = [
+  // ── World 1: Grunder (1-10) — score & collect, inga hinder ──
   {
-    id: 1,
-    name: "Akademiporten",
-    moves: 28,
+    id: 1, name: "Akademiporten", moves: 30,
+    goals: [{ type: "score", amount: 1000 }],
+  },
+  {
+    id: 2, name: "Körsbärsträdgården", moves: 30,
+    goals: [{ type: "collect", tile: "sakura", amount: 6 }],
+  },
+  {
+    id: 3, name: "Kattkaféet", moves: 28,
     goals: [
-      { type: "score", amount: 1500 },
-      { type: "collect", tile: "sakura", amount: 8 },
+      { type: "score", amount: 1400 },
+      { type: "collect", tile: "neko", amount: 8 },
     ],
   },
   {
-    id: 2,
-    name: "Nattmarknaden",
-    moves: 27,
+    id: 4, name: "Solnedgången", moves: 28,
+    goals: [{ type: "collect", tile: "sun", amount: 10 }],
+  },
+  {
+    id: 5, name: "Stjärnfestivalen", moves: 27,
     goals: [
-      { type: "score", amount: 2100 },
+      { type: "score", amount: 1800 },
+      { type: "collect", tile: "star", amount: 8 },
+    ],
+  },
+  {
+    id: 6, name: "Bladvirvelns park", moves: 27,
+    goals: [{ type: "collect", tile: "blade", amount: 10 }],
+  },
+  {
+    id: 7, name: "Nattmarknaden", moves: 26,
+    goals: [
+      { type: "score", amount: 2200 },
       { type: "collect", tile: "neko", amount: 10 },
     ],
   },
   {
-    id: 3,
-    name: "Bläckgränden",
-    moves: 26,
+    id: 8, name: "Månbron", moves: 26,
     goals: [
-      { type: "score", amount: 2600 },
-      { type: "clear", obstacle: "ink", amount: 6 },
-    ],
-    obstacleMap: [
-      "........",
-      "..i..i..",
-      "...ii...",
-      "........",
-      "...ii...",
-      "..i..i..",
-      "........",
-      "........",
+      { type: "collect", tile: "sakura", amount: 8 },
+      { type: "collect", tile: "star", amount: 8 },
     ],
   },
   {
-    id: 4,
-    name: "Soltempel",
-    moves: 25,
+    id: 9, name: "Tusenkransvägen", moves: 25,
+    goals: [{ type: "score", amount: 2600 }],
+  },
+  {
+    id: 10, name: "Portalens prov", moves: 25,
+    goals: [
+      { type: "score", amount: 2800 },
+      { type: "collect", tile: "sun", amount: 12 },
+    ],
+  },
+  // ── World 2: Ink & Locks (11-20) ──
+  {
+    id: 11, name: "Bläckgränden", moves: 26,
+    goals: [
+      { type: "score", amount: 2000 },
+      { type: "clear", obstacle: "ink", amount: 4 },
+    ],
+    obstacleMap: [
+      "........", "........", "...i....", "........",
+      "....i...", "........", "........", "........",
+    ],
+  },
+  {
+    id: 12, name: "Bläckregnet", moves: 26,
+    goals: [{ type: "clear", obstacle: "ink", amount: 6 }],
+    obstacleMap: [
+      "........", "..i..i..", "........", "........",
+      "........", "........", "..i..i..", "........",
+    ],
+  },
+  {
+    id: 13, name: "Mörka floden", moves: 25,
+    goals: [
+      { type: "score", amount: 2400 },
+      { type: "clear", obstacle: "ink", amount: 6 },
+    ],
+    obstacleMap: [
+      "........", "..i..i..", "...ii...", "........",
+      "........", "...ii...", "..i..i..", "........",
+    ],
+  },
+  {
+    id: 14, name: "Soltemplet", moves: 25,
     goals: [
       { type: "collect", tile: "sun", amount: 12 },
       { type: "clear", obstacle: "ink", amount: 8 },
     ],
     obstacleMap: [
-      "........",
-      ".i....i.",
-      "..i..i..",
-      "...ii...",
-      "...ii...",
-      "..i..i..",
-      ".i....i.",
-      "........",
+      "........", ".i....i.", "..i..i..", "...ii...",
+      "...ii...", "..i..i..", ".i....i.", "........",
     ],
   },
   {
-    id: 5,
-    name: "Sigillhallen",
-    moves: 24,
+    id: 15, name: "Sigillhallen", moves: 25,
     goals: [
-      { type: "unlock", amount: 6 },
-      { type: "score", amount: 3200 },
+      { type: "unlock", amount: 4 },
+      { type: "score", amount: 2600 },
     ],
     lockMap: [
-      "..l..l..",
-      "...ll...",
-      "........",
-      "..l..l..",
-      "..l..l..",
-      "........",
-      "...ll...",
-      "........",
+      "........", "........", "...ll...", "........",
+      "........", "...ll...", "........", "........",
     ],
   },
   {
-    id: 6,
-    name: "Tvillingsvärd",
-    moves: 23,
+    id: 16, name: "Kedjornas kammare", moves: 24,
+    goals: [{ type: "unlock", amount: 6 }],
+    lockMap: [
+      "........", "..l..l..", "........", "..l..l..",
+      "..l..l..", "........", "..l..l..", "........",
+    ],
+  },
+  {
+    id: 17, name: "Bläck och bojor", moves: 24,
     goals: [
-      { type: "unlock", amount: 7 },
-      { type: "clear", obstacle: "ink", amount: 7 },
+      { type: "unlock", amount: 4 },
+      { type: "clear", obstacle: "ink", amount: 6 },
     ],
     obstacleMap: [
-      "........",
-      "..i..i..",
-      "...ii...",
-      "........",
-      "...ii...",
-      "..i..i..",
-      "........",
-      "........",
+      "........", "...ii...", "........", "........",
+      "........", "........", "...ii...", "........",
     ],
     lockMap: [
-      "........",
-      ".l....l.",
-      "..l..l..",
-      "........",
-      "..l..l..",
-      ".l....l.",
-      "........",
-      "........",
+      "........", "........", "..l..l..", "........",
+      "........", "..l..l..", "........", "........",
     ],
   },
   {
-    id: 7,
-    name: "Panelfästet",
-    moves: 22,
+    id: 18, name: "Tvillingtornen", moves: 24,
+    goals: [
+      { type: "score", amount: 3000 },
+      { type: "unlock", amount: 6 },
+      { type: "clear", obstacle: "ink", amount: 6 },
+    ],
+    obstacleMap: [
+      "........", "..i..i..", "........", "........",
+      "........", "........", "..i..i..", "........",
+    ],
+    lockMap: [
+      "........", ".l....l.", "..l..l..", "........",
+      "........", "..l..l..", ".l....l.", "........",
+    ],
+  },
+  {
+    id: 19, name: "Drömlabyrinten", moves: 23,
+    goals: [
+      { type: "collect", tile: "ink", amount: 12 },
+      { type: "clear", obstacle: "ink", amount: 8 },
+    ],
+    obstacleMap: [
+      "........", ".i....i.", "..i..i..", "........",
+      "........", "..i..i..", ".i....i.", "........",
+    ],
+  },
+  {
+    id: 20, name: "Portalens väktare", moves: 23,
+    goals: [
+      { type: "score", amount: 3400 },
+      { type: "unlock", amount: 8 },
+    ],
+    lockMap: [
+      "..l..l..", "...ll...", "........", ".l....l.",
+      ".l....l.", "........", "...ll...", "..l..l..",
+    ],
+  },
+  // ── World 3: Frames & Full Mix (21-30) ──
+  {
+    id: 21, name: "Panelfästet", moves: 24,
+    goals: [
+      { type: "clear", obstacle: "frame", amount: 4 },
+      { type: "score", amount: 2800 },
+    ],
+    obstacleMap: [
+      "........", "........", "...ff...", "........",
+      "........", "...ff...", "........", "........",
+    ],
+  },
+  {
+    id: 22, name: "Ramverkets ruin", moves: 23,
+    goals: [{ type: "clear", obstacle: "frame", amount: 6 }],
+    obstacleMap: [
+      "........", "........", "..f..f..", "........",
+      "........", "..f..f..", "........", "........",
+    ],
+  },
+  {
+    id: 23, name: "Stålpanelerna", moves: 23,
     goals: [
       { type: "clear", obstacle: "frame", amount: 6 },
-      { type: "score", amount: 3900 },
+      { type: "clear", obstacle: "ink", amount: 4 },
     ],
     obstacleMap: [
-      "........",
-      "........",
-      "...ff...",
-      "..f..f..",
-      "..f..f..",
-      "...ff...",
-      "........",
-      "........",
+      "........", "..f..f..", "........", "...ii...",
+      "...ii...", "........", "..f..f..", "........",
     ],
   },
   {
-    id: 8,
-    name: "Mekanisk Manga",
-    moves: 21,
+    id: 24, name: "Mekanisk manga", moves: 22,
     goals: [
       { type: "clear", obstacle: "frame", amount: 8 },
       { type: "clear", obstacle: "ink", amount: 6 },
     ],
     obstacleMap: [
-      ".i....i.",
-      "...ff...",
-      "..f..f..",
-      ".f.ii.f.",
-      ".f.ii.f.",
-      "..f..f..",
-      "...ff...",
-      ".i....i.",
+      ".i....i.", "...ff...", "..f..f..", ".f.ii.f.",
+      ".f.ii.f.", "..f..f..", "...ff...", ".i....i.",
     ],
   },
   {
-    id: 9,
-    name: "Shogunens Port",
-    moves: 20,
+    id: 25, name: "Fängelseön", moves: 22,
+    goals: [
+      { type: "unlock", amount: 6 },
+      { type: "clear", obstacle: "frame", amount: 6 },
+    ],
+    obstacleMap: [
+      "........", "...ff...", "..f..f..", "........",
+      "........", "..f..f..", "...ff...", "........",
+    ],
+    lockMap: [
+      "........", "........", "........", "..l..l..",
+      "..l..l..", "........", "........", "........",
+    ],
+  },
+  {
+    id: 26, name: "Skuggpalatset", moves: 21,
+    goals: [
+      { type: "score", amount: 3800 },
+      { type: "clear", obstacle: "ink", amount: 8 },
+      { type: "unlock", amount: 6 },
+    ],
+    obstacleMap: [
+      "........", ".i....i.", "..i..i..", "...ii...",
+      "...ii...", "..i..i..", ".i....i.", "........",
+    ],
+    lockMap: [
+      "........", "........", ".l....l.", "........",
+      "........", ".l....l.", "........", "........",
+    ],
+  },
+  {
+    id: 27, name: "Shogunens port", moves: 21,
     goals: [
       { type: "unlock", amount: 7 },
       { type: "clear", obstacle: "frame", amount: 8 },
-      { type: "score", amount: 4600 },
+      { type: "score", amount: 4200 },
     ],
     obstacleMap: [
-      "i..ff..i",
-      ".i....i.",
-      "..fiif..",
-      ".f....f.",
-      ".f....f.",
-      "..fiif..",
-      ".i....i.",
-      "i..ff..i",
+      "i..ff..i", ".i....i.", "..fiif..", ".f....f.",
+      ".f....f.", "..fiif..", ".i....i.", "i..ff..i",
     ],
     lockMap: [
-      "........",
-      "..l..l..",
-      ".l....l.",
-      "........",
-      "........",
-      ".l....l.",
-      "..l..l..",
-      "........",
+      "........", "..l..l..", ".l....l.", "........",
+      "........", ".l....l.", "..l..l..", "........",
     ],
   },
   {
-    id: 10,
-    name: "Finalpanelen",
-    moves: 20,
+    id: 28, name: "Kaosbiblioteket", moves: 20,
+    goals: [
+      { type: "collect", tile: "star", amount: 14 },
+      { type: "clear", obstacle: "frame", amount: 8 },
+      { type: "clear", obstacle: "ink", amount: 8 },
+    ],
+    obstacleMap: [
+      "..f..f..", ".i....i.", "f..ii..f", "........",
+      "........", "f..ii..f", ".i....i.", "..f..f..",
+    ],
+  },
+  {
+    id: 29, name: "Demonkungen", moves: 20,
+    goals: [
+      { type: "score", amount: 5000 },
+      { type: "unlock", amount: 8 },
+      { type: "clear", obstacle: "frame", amount: 8 },
+    ],
+    obstacleMap: [
+      ".f.ff.f.", "........", "f......f", ".f.ii.f.",
+      ".f.ii.f.", "f......f", "........", ".f.ff.f.",
+    ],
+    lockMap: [
+      "........", ".l.ll.l.", "........", "........",
+      "........", "........", ".l.ll.l.", "........",
+    ],
+  },
+  {
+    id: 30, name: "Finalpanelen", moves: 19,
     goals: [
       { type: "score", amount: 5600 },
       { type: "collect", tile: "star", amount: 14 },
@@ -416,24 +529,12 @@ const LEVELS = [
       { type: "unlock", amount: 8 },
     ],
     obstacleMap: [
-      "if.ff.fi",
-      ".i....i.",
-      "ff....ff",
-      ".f.iif..",
-      ".f.iif..",
-      "ff....ff",
-      ".i....i.",
-      "if.ff.fi",
+      "if.ff.fi", ".i....i.", "ff....ff", ".f.iif..",
+      ".f.iif..", "ff....ff", ".i....i.", "if.ff.fi",
     ],
     lockMap: [
-      "..l..l..",
-      "...ll...",
-      "........",
-      ".l....l.",
-      ".l....l.",
-      "........",
-      "...ll...",
-      "........",
+      "..l..l..", "...ll...", "........", ".l....l.",
+      ".l....l.", "........", "...ll...", "........",
     ],
   },
 ];
@@ -576,7 +677,175 @@ class MangaMatch3 {
     this.initPrepScreen();
     this.updateCoinHUD();
     this.initTutorial();
-    this.showLevelSelect();
+    this.initMainMenu();
+  }
+
+  /* ── Main Menu ── */
+
+  initMainMenu() {
+    this.mainMenuEl = document.getElementById("mainMenu");
+    this.optionsOverlay = document.getElementById("optionsOverlay");
+    this.highscoreOverlay = document.getElementById("highscoreOverlay");
+    this.achievementsOverlay = document.getElementById("achievementsOverlay");
+    this.creditsOverlay = document.getElementById("creditsOverlay");
+
+    document.getElementById("menuStartBtn").addEventListener("click", () => {
+      sfx.init();
+      sfx.uiClick();
+      this.mainMenuEl.hidden = true;
+      this.showLevelSelect();
+    });
+
+    document.getElementById("menuOptionsBtn").addEventListener("click", () => {
+      sfx.init();
+      sfx.uiClick();
+      this.showOptions();
+    });
+
+    document.getElementById("menuHighscoreBtn").addEventListener("click", () => {
+      sfx.init();
+      sfx.uiClick();
+      this.showHighscores();
+    });
+
+    document.getElementById("menuAchievementsBtn").addEventListener("click", () => {
+      sfx.init();
+      sfx.uiClick();
+      this.showAchievements();
+    });
+
+    this.howtoOverlay = document.getElementById("howtoOverlay");
+    document.getElementById("menuHowtoBtn").addEventListener("click", () => {
+      sfx.init();
+      sfx.uiClick();
+      this.howtoOverlay.hidden = false;
+    });
+
+    document.getElementById("menuTutorialBtn").addEventListener("click", () => {
+      sfx.init();
+      sfx.uiClick();
+      this.mainMenuEl.hidden = true;
+      this.hideLevelSelect();
+      this.loadLevel(0);
+      window.setTimeout(() => this.startTutorial(), 400);
+    });
+
+    document.getElementById("menuCreditsBtn").addEventListener("click", () => {
+      sfx.init();
+      sfx.uiClick();
+      this.creditsOverlay.hidden = false;
+    });
+
+    // Back buttons
+    document.getElementById("optBackBtn").addEventListener("click", () => {
+      sfx.uiClick();
+      this.optionsOverlay.hidden = true;
+    });
+    document.getElementById("hsBackBtn").addEventListener("click", () => {
+      sfx.uiClick();
+      this.highscoreOverlay.hidden = true;
+    });
+    document.getElementById("achBackBtn").addEventListener("click", () => {
+      sfx.uiClick();
+      this.achievementsOverlay.hidden = true;
+    });
+    document.getElementById("credBackBtn").addEventListener("click", () => {
+      sfx.uiClick();
+      this.creditsOverlay.hidden = true;
+    });
+    document.getElementById("howtoBackBtn").addEventListener("click", () => {
+      sfx.uiClick();
+      this.howtoOverlay.hidden = true;
+    });
+
+    // Options controls
+    const soundBtn = document.getElementById("optSoundBtn");
+    soundBtn.textContent = sfx.muted ? "AV" : "PÅ";
+    soundBtn.addEventListener("click", () => {
+      const muted = sfx.toggleMute();
+      soundBtn.textContent = muted ? "AV" : "PÅ";
+    });
+
+    const volRange = document.getElementById("optVolumeRange");
+    volRange.value = Math.round(sfx.volume * 100);
+    volRange.addEventListener("input", () => {
+      sfx.setVolume(volRange.value / 100);
+    });
+
+    const resetBtn = document.getElementById("optResetBtn");
+    resetBtn.addEventListener("click", () => {
+      if (this.confirmReset) {
+        window.localStorage.removeItem(PROGRESS_STORAGE_KEY);
+        window.localStorage.removeItem(SHOP_STORAGE_KEY);
+        window.localStorage.removeItem(DAILY_STORAGE_KEY);
+        window.localStorage.removeItem(TUTORIAL_STORAGE_KEY);
+        resetBtn.textContent = "Raderat!";
+        this.confirmReset = false;
+        window.setTimeout(() => { resetBtn.textContent = "Radera"; }, 2000);
+      } else {
+        this.confirmReset = true;
+        resetBtn.textContent = "Säker? Tryck igen";
+        window.setTimeout(() => {
+          if (this.confirmReset) {
+            this.confirmReset = false;
+            resetBtn.textContent = "Radera";
+          }
+        }, 3000);
+      }
+    });
+    this.confirmReset = false;
+  }
+
+  showMainMenu() {
+    this.clearHint();
+    this.gameShellEl.hidden = true;
+    this.closeLevelPicker();
+    this.levelSelectEl.hidden = true;
+    this.mainMenuEl.hidden = false;
+  }
+
+  showOptions() {
+    this.optionsOverlay.hidden = false;
+  }
+
+  showHighscores() {
+    const list = document.getElementById("highscoreList");
+    list.innerHTML = "";
+    const progress = this.loadProgress();
+    let hasAny = false;
+
+    for (const level of LEVELS) {
+      const p = progress[`level-${level.id}`];
+      if (!p) continue;
+      hasAny = true;
+
+      const row = document.createElement("div");
+      row.className = "highscore-row";
+
+      let starsHtml = "";
+      for (let s = 0; s < 3; s++) {
+        starsHtml += s < (p.bestStars ?? 0) ? "★" : "☆";
+      }
+
+      row.innerHTML = `
+        <span class="highscore-row__level">${level.id}. ${level.name}</span>
+        <span class="highscore-row__stars">${starsHtml}</span>
+        <span class="highscore-row__score">${p.bestScore.toLocaleString("sv")} p</span>
+      `;
+      list.append(row);
+    }
+
+    if (!hasAny) {
+      list.innerHTML = `<p class="highscore-empty">Inga poäng ännu. Spela en bana!</p>`;
+    }
+
+    this.highscoreOverlay.hidden = false;
+  }
+
+  showAchievements() {
+    const list = document.getElementById("achievementsList");
+    list.innerHTML = `<p class="highscore-empty">Kommer snart!</p>`;
+    this.achievementsOverlay.hidden = false;
   }
 
   setupBoardGrid() {
@@ -737,6 +1006,7 @@ class MangaMatch3 {
 
   showLevelSelect() {
     this.clearHint();
+    this.mainMenuEl.hidden = true;
     this.gameShellEl.hidden = true;
     this.levelSelectEl.hidden = true;
     this.openLevelPicker();
@@ -1039,7 +1309,7 @@ class MangaMatch3 {
       await this.animatePositions([a, b], "swap-deny", TIMING.INVALID_MS);
       this.swapTiles(a, b);
       this.busy = false;
-      this.setStatus("Ogiltigt drag. Ingen matchning.");
+      this.setStatus(this.charQuote("miss"));
       this.render();
       this.scheduleHint();
       return;
@@ -1076,32 +1346,37 @@ class MangaMatch3 {
           if (!this.isFrameCell(r, c)) clearSet.add(this.key(r, c));
         }
       }
-      this.setStatus("MEGA COMBO! Dubbla färgbomber.");
+      this.setStatus(this.charQuote("mega"));
       this.showComboBurst("MEGA!");
+      this.flashSfxTag("ドカーン!");
       sfx.colorBlast();
       impactLevel = 3;
     } else if (isColorA) {
       this.collectTilesByType(tileB.type, clearSet);
       clearSet.add(this.key(a.row, a.col));
-      this.setStatus("Färgbomb utlöst.");
+      this.setStatus(this.charQuote("color"));
       this.showComboBurst("COLOR!");
+      this.flashSfxTag("ズバッ!");
       sfx.colorBlast();
     } else if (isColorB) {
       this.collectTilesByType(tileA.type, clearSet);
       clearSet.add(this.key(b.row, b.col));
-      this.setStatus("Färgbomb utlöst.");
+      this.setStatus(this.charQuote("color"));
       this.showComboBurst("COLOR!");
+      this.flashSfxTag("ズバッ!");
       sfx.colorBlast();
     } else {
       this.addSpecialArea(a.row, a.col, tileA.special, clearSet);
       this.addSpecialArea(b.row, b.col, tileB.special, clearSet);
       clearSet.add(this.key(a.row, a.col));
       clearSet.add(this.key(b.row, b.col));
-      this.setStatus("Specialkedja!");
+      this.setStatus(this.charQuote("chain"));
       this.showComboBurst("CHAIN!");
       const hasBomb = tileA.special === SPECIAL.BOMB || tileB.special === SPECIAL.BOMB;
       const hasLine = [tileA.special, tileB.special].some(s => s === SPECIAL.LINE_H || s === SPECIAL.LINE_V);
-      if (hasBomb) sfx.bombBlast(); else if (hasLine) sfx.lineBlast(); else sfx.match(2);
+      if (hasBomb) { sfx.bombBlast(); this.flashSfxTag("ボカン!"); }
+      else if (hasLine) { sfx.lineBlast(); this.flashSfxTag("シュッ!"); }
+      else sfx.match(2);
       impactLevel = 2 + Number(hasBomb);
     }
 
@@ -1135,10 +1410,20 @@ class MangaMatch3 {
 
       chain += 1;
       this.combo = 1 + Math.min(2, chain * 0.25);
-      if (chain === 1) sfx.match(chain); else sfx.cascade(chain);
+      if (chain === 1) {
+        sfx.match(chain);
+        this.flashSfxTag("パキッ!");
+      } else {
+        sfx.cascade(chain);
+        const chainTags = ["すごい!", "やった!", "最高!", "鬼!", "神!"];
+        this.flashSfxTag(chainTags[Math.min(chain - 2, chainTags.length - 1)]);
+      }
 
       const specialMap = this.determineSpecials(found.runs, localLastSwap);
-      if (specialMap.size > 0) sfx.specialCreate();
+      if (specialMap.size > 0) {
+        sfx.specialCreate();
+        this.flashSfxTag("キラッ!");
+      }
       const clearSet = this.expandClearBySpecial(found.matchSet);
       const filteredSpecialMap = this.applySpecialMapToClearSet(specialMap, clearSet);
       const impactSet = new Set([...clearSet, ...filteredSpecialMap.keys()]);
@@ -1175,10 +1460,10 @@ class MangaMatch3 {
     if (chain > 1) {
       this.recordDailyProgress("chain", 1);
       this.syncDailyProgress();
-      this.setStatus(`Combo chain x${chain}!`);
+      this.setStatus(this.charQuote("combo"));
       this.showComboBurst(`${chain} CHAIN`);
     } else if (chain === 1) {
-      this.setStatus("Träff! Fortsätt.");
+      this.setStatus(this.charQuote("hit"));
     }
   }
 
@@ -1866,8 +2151,9 @@ class MangaMatch3 {
       this.renderGoals();
 
       sfx.levelComplete();
+      this.flashSfxTag("クリア!", 2000);
       if (this.levelIndex >= LEVELS.length - 1) {
-        this.setStatus("Du klarade alla 10 banor! Finalpanelen är säkrad.");
+        this.setStatus("Du klarade alla banor! Finalpanelen är säkrad.");
         this.showComboBurst("VICTORY!");
       } else {
         this.setStatus(`Bana ${this.currentLevel.id} klar!`);
@@ -1881,6 +2167,7 @@ class MangaMatch3 {
       this.levelComplete = true;
       this.updateHUD();
       sfx.gameOver();
+      this.flashSfxTag("ざんねん…", 2000);
       this.showComboBurst("TRY AGAIN");
       window.setTimeout(() => this.showResultOverlay("game-over"), 1200);
       return;
@@ -1888,7 +2175,7 @@ class MangaMatch3 {
 
     if (!this.hasAnyPossibleMove()) {
       this.shuffleBoard(false);
-      this.setStatus("Brädet låste sig och blandades om.");
+      this.setStatus(this.charQuote("shuffle"));
     }
 
     this.updateHUD();
@@ -2347,6 +2634,7 @@ class MangaMatch3 {
   activateFever() {
     if (this.feverActive) return;
     sfx.feverActivate();
+    this.flashSfxTag("燃えろ!", 1800);
     this.feverActive = true;
     this.feverTurnsLeft = FEVER.TURNS;
     this.feverCharge = FEVER.MAX_CHARGE;
@@ -2393,10 +2681,26 @@ class MangaMatch3 {
     }
     this.hudPanelEl?.classList.toggle("fever-on", this.feverActive);
     this.boardPanelEl?.classList.toggle("fever-on", this.feverActive);
-    if (this.sfxTagEl) this.sfxTagEl.textContent = this.feverActive ? "FEVER!" : "KIRA!";
+    if (this.sfxTagEl && !this.sfxTagTimer) {
+      this.sfxTagEl.textContent = this.feverActive ? "FEVER!" : "KIRA!";
+    }
 
     this.nextBtn.disabled = !this.levelComplete || this.levelIndex >= LEVELS.length - 1;
     this.shuffleBtn.disabled = this.busy || this.levelComplete;
+  }
+
+  flashSfxTag(text, duration = 1200) {
+    if (!this.sfxTagEl) return;
+    if (this.sfxTagTimer) window.clearTimeout(this.sfxTagTimer);
+    this.sfxTagEl.textContent = text;
+    this.sfxTagEl.classList.remove("sfx-pop");
+    void this.sfxTagEl.offsetWidth;
+    this.sfxTagEl.classList.add("sfx-pop");
+    this.sfxTagTimer = window.setTimeout(() => {
+      this.sfxTagTimer = null;
+      this.sfxTagEl.textContent = this.feverActive ? "FEVER!" : "KIRA!";
+      this.sfxTagEl.classList.remove("sfx-pop");
+    }, duration);
   }
 
   retriggerElementClass(node, className, tokenKey) {
@@ -2408,6 +2712,52 @@ class MangaMatch3 {
       if (node[tokenKey] !== nextToken) return;
       node.classList.add(className);
     });
+  }
+
+  charQuote(event) {
+    const chars = ["Sakura", "Neko", "Sol", "Bläck", "Stjärna", "Blad"];
+    const pick = chars[Math.floor(Math.random() * chars.length)];
+    const quotes = {
+      miss: [
+        `${pick}: "Nja, det funkar inte..."`,
+        `${pick}: "Försök igen!"`,
+        `${pick}: "Inte riktigt, nya~"`,
+        `${pick}: "Hmm, tänk om!"`,
+      ],
+      hit: [
+        `${pick}: "Bra drag!"`,
+        `${pick}: "Snyggt!"`,
+        `${pick}: "Fortsätt så!"`,
+        `${pick}: "Naisu~!"`,
+      ],
+      chain: [
+        `${pick}: "Kedjeattack!!"`,
+        `${pick}: "Vi är ostoppbara!"`,
+        `${pick}: "IKUZO!"`,
+      ],
+      combo: [
+        `${pick}: "Vilken kombo!!"`,
+        `${pick}: "Sugoi~!!"`,
+        `${pick}: "Vi brinner!"`,
+      ],
+      mega: [
+        `${pick}: "MEGA COMBO!!!"`,
+        `${pick}: "Otroligt!!!"`,
+        `${pick}: "MASAKA?!"`,
+      ],
+      color: [
+        `${pick}: "Färgexplosion!"`,
+        `${pick}: "Alla på en gång!"`,
+        `${pick}: "Zenbu kieta!"`,
+      ],
+      shuffle: [
+        `${pick}: "Brädet blandas om!"`,
+        `${pick}: "Nytt läge, nya chanser!"`,
+        `${pick}: "Omstart!"`,
+      ],
+    };
+    const list = quotes[event] ?? quotes.hit;
+    return list[Math.floor(Math.random() * list.length)];
   }
 
   setStatus(text) {
@@ -2862,8 +3212,17 @@ class MangaMatch3 {
     }
     if (this.pickerCloseBtn) {
       this.pickerCloseBtn.addEventListener("click", () => {
+        sfx.uiClick();
         this.closeLevelPicker();
         this.gameShellEl.hidden = false;
+      });
+    }
+    const pickerMenuBtn = document.getElementById("pickerMenuBtn");
+    if (pickerMenuBtn) {
+      pickerMenuBtn.addEventListener("click", () => {
+        sfx.uiClick();
+        this.closeLevelPicker();
+        this.showMainMenu();
       });
     }
   }
