@@ -30,8 +30,8 @@ export const uiMixin = {
     document.getElementById("howtoBackBtn").addEventListener("click", () => { sfx.uiClick(); this.howtoOverlay.hidden = true; });
 
     const soundBtn = document.getElementById("optSoundBtn");
-    soundBtn.textContent = sfx.muted ? "AV" : "PÅ";
-    soundBtn.addEventListener("click", () => { const muted = sfx.toggleMute(); soundBtn.textContent = muted ? "AV" : "PÅ"; });
+    soundBtn.textContent = sfx.muted ? "OFF" : "ON";
+    soundBtn.addEventListener("click", () => { const muted = sfx.toggleMute(); soundBtn.textContent = muted ? "OFF" : "ON"; });
 
     const volRange = document.getElementById("optVolumeRange");
     volRange.value = Math.round(sfx.volume * 100);
@@ -41,11 +41,11 @@ export const uiMixin = {
     resetBtn.addEventListener("click", () => {
       if (this.confirmReset) {
         window.localStorage.removeItem(PROGRESS_STORAGE_KEY); window.localStorage.removeItem(SHOP_STORAGE_KEY); window.localStorage.removeItem(DAILY_STORAGE_KEY); window.localStorage.removeItem(TUTORIAL_STORAGE_KEY);
-        resetBtn.textContent = "Raderat!"; this.confirmReset = false;
-        window.setTimeout(() => { resetBtn.textContent = "Radera"; }, 2000);
+        resetBtn.textContent = "Deleted!"; this.confirmReset = false;
+        window.setTimeout(() => { resetBtn.textContent = "Delete"; }, 2000);
       } else {
-        this.confirmReset = true; resetBtn.textContent = "Säker? Tryck igen";
-        window.setTimeout(() => { if (this.confirmReset) { this.confirmReset = false; resetBtn.textContent = "Radera"; } }, 3000);
+        this.confirmReset = true; resetBtn.textContent = "Sure? Press again";
+        window.setTimeout(() => { if (this.confirmReset) { this.confirmReset = false; resetBtn.textContent = "Delete"; } }, 3000);
       }
     });
     this.confirmReset = false;
@@ -61,14 +61,14 @@ export const uiMixin = {
       const p = progress[`level-${level.id}`]; if (!p) continue; hasAny = true;
       const row = document.createElement("div"); row.className = "highscore-row";
       let starsHtml = ""; for (let s = 0; s < 3; s++) starsHtml += s < (p.bestStars ?? 0) ? "★" : "☆";
-      row.innerHTML = `<span class="highscore-row__level">${level.id}. ${level.name}</span><span class="highscore-row__stars">${starsHtml}</span><span class="highscore-row__score">${p.bestScore.toLocaleString("sv")} p</span>`;
+      row.innerHTML = `<span class="highscore-row__level">${level.id}. ${level.name}</span><span class="highscore-row__stars">${starsHtml}</span><span class="highscore-row__score">${p.bestScore.toLocaleString("en")} pts</span>`;
       list.append(row);
     }
-    if (!hasAny) list.innerHTML = `<p class="highscore-empty">Inga poäng ännu. Spela en bana!</p>`;
+    if (!hasAny) list.innerHTML = `<p class="highscore-empty">No scores yet. Play a stage!</p>`;
     this.highscoreOverlay.hidden = false;
   },
 
-  showAchievements() { const list = document.getElementById("achievementsList"); list.innerHTML = `<p class="highscore-empty">Kommer snart!</p>`; this.achievementsOverlay.hidden = false; },
+  showAchievements() { const list = document.getElementById("achievementsList"); list.innerHTML = `<p class="highscore-empty">Coming soon!</p>`; this.achievementsOverlay.hidden = false; },
 
   /* ── Level Picker ── */
 
@@ -99,7 +99,7 @@ export const uiMixin = {
       if (isLocked) card.classList.add("level-card--locked"); else if (isCurrent) card.classList.add("level-card--current"); else if (stars > 0) card.classList.add("level-card--cleared");
       card.disabled = isLocked;
       let starsHtml = ""; for (let s = 0; s < 3; s++) starsHtml += `<span class="level-card__star ${s < stars ? "level-card__star--earned" : "level-card__star--empty"}">★</span>`;
-      let detailHtml = isLocked ? `<span class="level-card__lock">🔒</span>` : bestScore > 0 ? `<span class="level-card__best">Bästa: ${bestScore.toLocaleString("sv")} p</span>` : "";
+      let detailHtml = isLocked ? `<span class="level-card__lock">🔒</span>` : bestScore > 0 ? `<span class="level-card__best">Best: ${bestScore.toLocaleString("en")} pts</span>` : "";
       card.innerHTML = `<span class="level-card__number">${level.id}</span><p class="level-card__name">${level.name}</p><div class="level-card__stars">${starsHtml}</div>${detailHtml}`;
       if (!isLocked) card.addEventListener("click", () => { sfx.init(); sfx.uiClick(); this.closeLevelPicker(); this.openPrepScreen(i); });
       card.style.animation = `picker-fade-in 300ms ${80 * i}ms ease-out both`;
@@ -117,7 +117,7 @@ export const uiMixin = {
       const stars = document.createElement("div"); stars.className = "level-node__stars"; const earned = progress?.bestStars ?? 0;
       for (let s = 0; s < 3; s += 1) { const star = document.createElement("span"); star.className = s < earned ? "star-earned" : "star-empty"; star.textContent = "★"; stars.append(star); }
       const best = document.createElement("span"); best.className = "level-node__best";
-      if (unlocked && progress) best.textContent = `Bästa: ${progress.bestScore.toLocaleString("sv")} p`; else if (!unlocked) best.textContent = "";
+      if (unlocked && progress) best.textContent = `Best: ${progress.bestScore.toLocaleString("en")} pts`; else if (!unlocked) best.textContent = "";
       node.append(num, name, stars, best);
       if (unlocked) node.addEventListener("click", () => { this.hideLevelSelect(); this.loadLevel(i); });
       this.levelMapEl.append(node);
@@ -179,7 +179,7 @@ export const uiMixin = {
 
   openPrepScreen(levelIndex) {
     this.prepLevelIndex = levelIndex; const level = LEVELS[levelIndex]; this.prepSelectedPowerups = [];
-    this.prepTitle.textContent = `Bana ${level.id}: ${level.name}`;
+    this.prepTitle.textContent = `Stage ${level.id}: ${level.name}`;
     this.prepGoals.innerHTML = "";
     for (const goal of level.goals) { const li = document.createElement("li"); li.textContent = this.goalText(goal); this.prepGoals.append(li); }
     this.renderPrepPowerups(); this.prepOverlay.hidden = false;
@@ -195,7 +195,7 @@ export const uiMixin = {
       btn.addEventListener("click", () => { if (isSelected) this.prepSelectedPowerups = this.prepSelectedPowerups.filter((id) => id !== pu.id); else this.prepSelectedPowerups.push(pu.id); this.renderPrepPowerups(); });
       this.prepPowerups.append(btn);
     }
-    if (!hasAny) { const msg = document.createElement("p"); msg.className = "prep-empty"; msg.textContent = "Inga power-ups. Köp i butiken!"; this.prepPowerups.append(msg); }
+    if (!hasAny) { const msg = document.createElement("p"); msg.className = "prep-empty"; msg.textContent = "No power-ups. Buy some in the shop!"; this.prepPowerups.append(msg); }
   },
 
   closePrepScreen() { this.prepOverlay.hidden = true; this.openLevelPicker(); },
@@ -229,8 +229,8 @@ export const uiMixin = {
   usePowerup(puId) {
     if (this.busy || this.levelComplete) return;
     if (puId === "sensei") { this.activePowerups = this.activePowerups.filter((id) => id !== puId); this.showHint(); this.showComboBurst("SENSEI!"); this.clearHintTimeout = window.setTimeout(() => this.clearHint(), 10000); this.renderActivePowerupBar(); return; }
-    if (puId === "ink_blast") { this.inkBlastPending = true; this.bomb3x3Pending = false; this.setStatus("Tryck på en bricka för att förstöra alla av den färgen!"); this.renderActivePowerupBar(); return; }
-    if (puId === "bomb_3x3") { this.bomb3x3Pending = true; this.inkBlastPending = false; this.setStatus("Tryck på en ruta för att spränga 3×3!"); this.renderActivePowerupBar(); return; }
+    if (puId === "ink_blast") { this.inkBlastPending = true; this.bomb3x3Pending = false; this.setStatus("Tap a tile to destroy all of that color!"); this.renderActivePowerupBar(); return; }
+    if (puId === "bomb_3x3") { this.bomb3x3Pending = true; this.inkBlastPending = false; this.setStatus("Tap a cell to blast 3×3!"); this.renderActivePowerupBar(); return; }
   },
 
   handlePowerupClick(row, col) {
@@ -273,13 +273,13 @@ export const uiMixin = {
   getTutorialSteps() {
     const mobile = this.isMobile();
     return [
-      { text: '<span class="tut-emoji">🌸</span> <strong>Välkommen till Manga Match!</strong><br>Matcha tre eller fler likadana brickor i rad för att samla poäng.', target: () => this.boardEl, btn: "Kör igång!" },
-      { text: 'Klicka på en bricka för att <strong>välja</strong> den, sedan klicka på en <strong>granne</strong> för att byta plats. Du kan också <strong>swipa</strong> på mobil!', target: () => this.boardEl, btn: "Förstår!" },
-      { text: '<span class="tut-emoji">🎯</span> Här ser du banans <strong>mål</strong>. Klara alla mål innan dragen tar slut!', target: () => mobile ? document.querySelector(".mobile-hud") || this.boardEl : document.querySelector(".goals-panel"), btn: "Nästa" },
-      { text: '<span class="tut-emoji">📊</span> Håll koll på <strong>poäng</strong>, <strong>drag kvar</strong> och din <strong>combo</strong>-multiplikator här.', target: () => mobile ? document.querySelector(".mobile-hud") || this.boardEl : document.querySelector(".stat-grid"), btn: "Nästa" },
-      { text: '<span class="tut-emoji">🔥</span> Bygg kedjor för att ladda <strong>Fever-mätaren</strong>! När den är full aktiveras Fever Mode med bonuspoäng.', target: () => mobile ? this.boardEl : document.querySelector(".fever-panel"), btn: "Nästa" },
-      { text: 'Matcha <strong>4 i rad</strong> för en linjeattack, <strong>5 i rad</strong> för färgbomb, och <strong>T/L-form</strong> för en bomb! Kombinera special-brickor för maximal effekt.', target: () => this.boardEl, btn: "Nästa" },
-      { text: '<span class="tut-emoji">⭐</span> Ju fler drag du har kvar, desto fler <strong>stjärnor</strong> får du! Sikta på 3 stjärnor för varje bana.', target: () => this.boardEl, btn: "Spela!" },
+      { text: '<span class="tut-emoji">🌸</span> <strong>Welcome to Manga Match!</strong><br>Match three or more identical tiles in a row to score points.', target: () => this.boardEl, btn: "Let's go!" },
+      { text: 'Click a tile to <strong>select</strong> it, then click a <strong>neighbor</strong> to swap. You can also <strong>swipe</strong> on mobile!', target: () => this.boardEl, btn: "Got it!" },
+      { text: '<span class="tut-emoji">🎯</span> Here you can see the stage <strong>goals</strong>. Complete all goals before you run out of moves!', target: () => mobile ? document.querySelector(".mobile-hud") || this.boardEl : document.querySelector(".goals-panel"), btn: "Next" },
+      { text: '<span class="tut-emoji">📊</span> Keep track of your <strong>score</strong>, <strong>moves left</strong> and your <strong>combo</strong> multiplier here.', target: () => mobile ? document.querySelector(".mobile-hud") || this.boardEl : document.querySelector(".stat-grid"), btn: "Next" },
+      { text: '<span class="tut-emoji">🔥</span> Build chains to charge the <strong>Fever meter</strong>! When it\'s full, Fever Mode activates with bonus points.', target: () => mobile ? this.boardEl : document.querySelector(".fever-panel"), btn: "Next" },
+      { text: 'Match <strong>4 in a row</strong> for a line blast, <strong>5 in a row</strong> for a color bomb, and <strong>T/L shape</strong> for a bomb! Combine specials for maximum effect.', target: () => this.boardEl, btn: "Next" },
+      { text: '<span class="tut-emoji">⭐</span> The more moves you have left, the more <strong>stars</strong> you earn! Aim for 3 stars on every stage.', target: () => this.boardEl, btn: "Play!" },
     ];
   },
 

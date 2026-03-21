@@ -94,13 +94,13 @@ export const dailyMixin = {
   },
 
   getDailyChallengeText(challenge) {
-    if (!challenge) return "Ingen utmaning aktiv.";
-    if (challenge.type === "score") return `Gör ${challenge.target} poäng idag.`;
-    if (challenge.type === "clear") return `Rensa ${challenge.target} brickor idag.`;
-    if (challenge.type === "collect") { const tileIndex = TILE_INDEX_BY_ID[challenge.tileId]; const tile = TILE_TYPES[tileIndex]; return `Samla ${tile?.name ?? "brickor"} ${tile?.icon ?? "◆"} x${challenge.target} idag.`; }
-    if (challenge.type === "special") return `Skapa ${challenge.target} specialbrickor idag.`;
-    if (challenge.type === "chain") return `Gör ${challenge.target} combo-kedjor idag.`;
-    return "Slutför dagens mål.";
+    if (!challenge) return "No challenge active.";
+    if (challenge.type === "score") return `Score ${challenge.target} points today.`;
+    if (challenge.type === "clear") return `Clear ${challenge.target} tiles today.`;
+    if (challenge.type === "collect") { const tileIndex = TILE_INDEX_BY_ID[challenge.tileId]; const tile = TILE_TYPES[tileIndex]; return `Collect ${tile?.name ?? "tiles"} ${tile?.icon ?? "◆"} x${challenge.target} today.`; }
+    if (challenge.type === "special") return `Create ${challenge.target} special tiles today.`;
+    if (challenge.type === "chain") return `Make ${challenge.target} combo chains today.`;
+    return "Complete today's goal.";
   },
 
   getDailyLoginReward(streak) { const s = Math.max(0, Math.floor(streak)); return { moves: 1 + Number(s >= 7), fever: 10 + Math.min(16, s * 2) }; },
@@ -124,7 +124,7 @@ export const dailyMixin = {
     if (!this.pendingDailyReward) return;
     const reward = this.pendingDailyReward; this.pendingDailyReward = null;
     this.moves += reward.moves; this.addFeverCharge(reward.fever);
-    this.dailyRewardStatus = `Daglig bonus: +${reward.moves} drag, +${reward.fever}% FEVER`;
+    this.dailyRewardStatus = `Daily bonus: +${reward.moves} moves, +${reward.fever}% FEVER`;
   },
 
   recordDailyProgress(kind, amount = 1, tileId = "") {
@@ -154,14 +154,14 @@ export const dailyMixin = {
     this.moves += reward.moves; this.score += reward.score; this.addFeverCharge(reward.fever);
     this.dailyProgressDirty = true; this.syncDailyProgress(true);
     this.showComboBurst("DAILY CLEAR");
-    this.setStatus(`Daglig utmaning klar! +${reward.moves} drag, +${reward.score} score, +${reward.fever}% FEVER.`);
+    this.setStatus(`Daily challenge complete! +${reward.moves} moves, +${reward.score} score, +${reward.fever}% FEVER.`);
     this.updateHUD();
   },
 
   renderDailyPanel() {
     if (!this.dailyTaskEl || !this.dailyFillEl || !this.dailyCountEl || !this.dailyStreakEl || !this.dailyRewardEl) return;
     const challenge = this.dailyState?.challenge;
-    if (!challenge) { this.dailyTaskEl.textContent = "Daglig utmaning laddas..."; this.dailyFillEl.style.width = "0%"; this.dailyCountEl.textContent = "0/0"; this.dailyStreakEl.textContent = "Streak 0"; this.dailyRewardEl.textContent = "Belöning väntar"; return; }
+    if (!challenge) { this.dailyTaskEl.textContent = "Loading daily challenge..."; this.dailyFillEl.style.width = "0%"; this.dailyCountEl.textContent = "0/0"; this.dailyStreakEl.textContent = "Streak 0"; this.dailyRewardEl.textContent = "Reward waiting"; return; }
     const progress = Math.min(challenge.target, challenge.progress);
     const percent = challenge.target > 0 ? Math.round((progress / challenge.target) * 100) : 0;
     this.dailyTaskEl.textContent = this.getDailyChallengeText(challenge);
@@ -169,9 +169,9 @@ export const dailyMixin = {
     this.dailyStreakEl.textContent = `Streak ${this.dailyState.streak}`;
     this.dailyProgressEl?.setAttribute("aria-valuenow", `${percent}`);
     this.dailyPanelEl?.classList.toggle("complete", challenge.completed);
-    if (challenge.completed) { this.dailyRewardEl.textContent = "Klar idag. Ny utmaning imorgon."; return; }
+    if (challenge.completed) { this.dailyRewardEl.textContent = "Done today. New challenge tomorrow."; return; }
     const projectedStreak = this.getProjectedDailyStreak();
     const preview = this.getDailyChallengeReward(projectedStreak, challenge.type);
-    this.dailyRewardEl.textContent = `Belöning: +${preview.moves} drag, +${preview.score} score, +${preview.fever}% FEVER`;
+    this.dailyRewardEl.textContent = `Reward: +${preview.moves} moves, +${preview.score} score, +${preview.fever}% FEVER`;
   },
 };

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="sv">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,6 +11,10 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#1a2142" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   </head>
   <body>
     <div class="bg-halo halo-a"></div>
@@ -39,19 +43,19 @@
         <h2 class="menu-overlay__title">Options</h2>
         <div class="options-list">
           <div class="options-row">
-            <span class="options-label">Ljud</span>
-            <button id="optSoundBtn" class="options-toggle" type="button">PÅ</button>
+            <span class="options-label">Sound</span>
+            <button id="optSoundBtn" class="options-toggle" type="button">ON</button>
           </div>
           <div class="options-row">
-            <span class="options-label">Volym</span>
+            <span class="options-label">Volume</span>
             <input id="optVolumeRange" class="options-range" type="range" min="0" max="100" value="35">
           </div>
           <div class="options-row">
-            <span class="options-label">Nollställ progress</span>
-            <button id="optResetBtn" class="options-toggle options-toggle--danger" type="button">Radera</button>
+            <span class="options-label">Reset progress</span>
+            <button id="optResetBtn" class="options-toggle options-toggle--danger" type="button">Delete</button>
           </div>
         </div>
-        <button id="optBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+        <button id="optBackBtn" class="menu-overlay__back" type="button">Back</button>
       </div>
     </div>
 
@@ -60,7 +64,7 @@
       <div class="menu-overlay__card">
         <h2 class="menu-overlay__title">High Score</h2>
         <div id="highscoreList" class="highscore-list"></div>
-        <button id="hsBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+        <button id="hsBackBtn" class="menu-overlay__back" type="button">Back</button>
       </div>
     </div>
 
@@ -69,7 +73,7 @@
       <div class="menu-overlay__card menu-overlay__card--wide">
         <h2 class="menu-overlay__title">Achievements</h2>
         <div id="achievementsList" class="achievements-list"></div>
-        <button id="achBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+        <button id="achBackBtn" class="menu-overlay__back" type="button">Back</button>
       </div>
     </div>
 
@@ -79,31 +83,31 @@
         <h2 class="menu-overlay__title">How to Play</h2>
         <div class="howto-content">
           <div class="howto-section">
-            <h3>Grunderna</h3>
-            <p>Byt plats på två intilliggande brickor för att matcha <strong>3 eller fler</strong> i rad — horisontellt eller vertikalt.</p>
+            <h3>Basics</h3>
+            <p>Swap two adjacent tiles to match <strong>3 or more</strong> in a row — horizontally or vertically.</p>
           </div>
           <div class="howto-section">
-            <h3>Special-brickor</h3>
-            <p><strong>4 i rad</strong> → Linjeattack (rensar hela raden eller kolumnen)</p>
-            <p><strong>5+ i rad</strong> → Färgbomb (rensar alla brickor av en färg)</p>
-            <p><strong>T/L-form</strong> → Bomb (rensar 3×3 område)</p>
+            <h3>Special Tiles</h3>
+            <p><strong>4 in a row</strong> → Line blast (clears entire row or column)</p>
+            <p><strong>5+ in a row</strong> → Color bomb (clears all tiles of one color)</p>
+            <p><strong>T/L shape</strong> → Bomb (clears 3×3 area)</p>
           </div>
           <div class="howto-section">
-            <h3>Hinder</h3>
-            <p><strong>Bläck</strong> — Har 2 lager. Skadas av matchningar intill.</p>
-            <p><strong>Ramar</strong> — Blockerar rutor. Förstörs av matchningar intill.</p>
-            <p><strong>Lås</strong> — Brickan kan inte flyttas. Matcha den för att låsa upp.</p>
+            <h3>Obstacles</h3>
+            <p><strong>Ink</strong> — Has 2 layers. Damaged by adjacent matches.</p>
+            <p><strong>Frames</strong> — Block cells. Destroyed by adjacent matches.</p>
+            <p><strong>Locks</strong> — Tile can't be moved. Match it to unlock.</p>
           </div>
           <div class="howto-section">
             <h3>Fever Mode</h3>
-            <p>Bygg kedjor och skapa specials för att ladda fever-metern. Vid 100% aktiveras <strong>Fever Mode</strong> — alla poäng multipliceras i 5 drag!</p>
+            <p>Build chains and create specials to charge the fever meter. At 100%, <strong>Fever Mode</strong> activates — all points are multiplied for 5 moves!</p>
           </div>
           <div class="howto-section">
-            <h3>Stjärnor</h3>
-            <p>Klara nivån med drag kvar för stjärnor. Fler drag kvar = fler stjärnor. Samla stjärnor för att låsa upp nya banor!</p>
+            <h3>Stars</h3>
+            <p>Complete the level with moves remaining to earn stars. More moves left = more stars. Collect stars to unlock new stages!</p>
           </div>
         </div>
-        <button id="howtoBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+        <button id="howtoBackBtn" class="menu-overlay__back" type="button">Back</button>
       </div>
     </div>
 
@@ -120,22 +124,22 @@
           <p class="credits-name">GameVolt.io</p>
           <p class="credits-copy">© 2026 SmartProc Games</p>
         </div>
-        <button id="credBackBtn" class="menu-overlay__back" type="button">Tillbaka</button>
+        <button id="credBackBtn" class="menu-overlay__back" type="button">Back</button>
       </div>
     </div>
 
     <div class="mobile-hud" aria-hidden="true">
       <span class="mobile-hud__item"><span class="mobile-hud__label">Score</span><strong id="mScore">0</strong></span>
-      <span class="mobile-hud__item"><span class="mobile-hud__label">Drag</span><strong id="mMoves">25</strong></span>
+      <span class="mobile-hud__item"><span class="mobile-hud__label">Moves</span><strong id="mMoves">25</strong></span>
       <span class="mobile-hud__item"><span class="mobile-hud__label">Combo</span><strong id="mCombo">x1.0</strong></span>
-      <span class="mobile-hud__item"><span class="mobile-hud__label">Bana</span><strong id="mLevel">1</strong></span>
+      <span class="mobile-hud__item"><span class="mobile-hud__label">Stage</span><strong id="mLevel">1</strong></span>
       <span class="mobile-hud__item"><span class="mobile-hud__label">コイン</span><strong id="mCoins">0</strong></span>
     </div>
 
     <div id="levelSelect" class="level-select">
       <div class="level-select__header">
         <h1>Manga Match!</h1>
-        <p class="level-select__sub">Välj bana</p>
+        <p class="level-select__sub">Select Stage</p>
       </div>
       <div id="levelMap" class="level-map"></div>
     </div>
@@ -145,39 +149,39 @@
         <h1>Manga Match!</h1>
         <p class="tagline">Combo panels. Anime energy.</p>
 
-        <section class="goals-panel" aria-label="Banmål">
-          <h2>Mål</h2>
+        <section class="goals-panel" aria-label="Stage goals">
+          <h2>Goals</h2>
           <ul id="goalsList" class="goal-list"></ul>
         </section>
 
-        <div id="status" class="status-box">Byt två brickor för att starta.</div>
+        <div id="status" class="status-box">Swap two tiles to start.</div>
 
         <section class="fever-panel" aria-label="Fever mode">
           <div class="fever-head">
             <span class="label">Fever</span>
-            <strong id="feverState">Laddar</strong>
+            <strong id="feverState">Charging</strong>
           </div>
           <div id="feverMeter" class="fever-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div id="feverFill" class="fever-fill"></div>
           </div>
           <div class="fever-meta">
             <span id="feverPercent">0%</span>
-            <span id="feverTurns">Bygg kedjor</span>
+            <span id="feverTurns">Build chains</span>
           </div>
         </section>
 
-        <section id="dailyPanel" class="daily-panel" aria-label="Daglig utmaning">
+        <section id="dailyPanel" class="daily-panel" aria-label="Daily challenge">
           <div class="daily-head">
-            <span class="label">Daglig utmaning</span>
+            <span class="label">Daily Challenge</span>
             <strong id="dailyStreak">Streak 0</strong>
           </div>
-          <p id="dailyTask" class="daily-task">Laddar utmaning...</p>
+          <p id="dailyTask" class="daily-task">Loading challenge...</p>
           <div id="dailyProgress" class="daily-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div id="dailyFill" class="daily-fill"></div>
           </div>
           <div class="daily-meta">
             <span id="dailyCount">0/0</span>
-            <span id="dailyReward">Belöning väntar</span>
+            <span id="dailyReward">Reward waiting</span>
           </div>
         </section>
 
@@ -187,11 +191,11 @@
             <strong id="score">0</strong>
           </article>
           <article class="stat-card">
-            <span class="label">Bana</span>
+            <span class="label">Stage</span>
             <strong id="level">1 / 10</strong>
           </article>
           <article class="stat-card">
-            <span class="label">Drag kvar</span>
+            <span class="label">Moves left</span>
             <strong id="moves">25</strong>
           </article>
           <article class="stat-card">
@@ -205,33 +209,34 @@
         </div>
 
         <div class="controls">
-          <button id="restartBtn" type="button">Ny match</button>
-          <button id="nextBtn" type="button">Nästa bana</button>
-          <button id="shuffleBtn" type="button">Blanda</button>
-          <button id="mapBtn" type="button">Banväljare</button>
+          <button id="pauseBtn" type="button">Pause</button>
+          <button id="restartBtn" type="button">Restart</button>
+          <button id="nextBtn" type="button">Next Stage</button>
+          <button id="shuffleBtn" type="button">Shuffle</button>
+          <button id="mapBtn" type="button">Stages</button>
         </div>
 
         <p class="rules">
-          Matcha 3+ i rad. <span>4</span> skapar linjeattack, <span>5</span> skapar färgbomb,
-          <span>T/L</span>-korsning skapar bomb.
+          Match 3+ in a row. <span>4</span> creates line blast, <span>5</span> creates color bomb,
+          <span>T/L</span> intersection creates bomb.
         </p>
       </section>
 
       <section class="board-panel">
         <div class="manga-strip top"></div>
         <div class="sfx-tag" aria-hidden="true">KIRA!</div>
-        <div id="board" class="board" aria-label="Spelbräde"></div>
+        <div id="board" class="board" aria-label="Game board"></div>
         <div id="fxLayer" class="fx-layer" aria-hidden="true"></div>
         <div id="comboBurst" class="combo-burst" aria-hidden="true"></div>
         <div id="resultOverlay" class="result-overlay" hidden>
           <div class="result-card">
             <h2 id="resultTitle" class="result-title"></h2>
-            <div id="resultStars" class="result-stars" aria-label="Stjärnor"></div>
+            <div id="resultStars" class="result-stars" aria-label="Stars"></div>
             <div id="resultBody" class="result-body"></div>
             <div class="result-actions">
-              <button id="resultRetryBtn" type="button">Försök igen</button>
-              <button id="resultNextBtn" type="button">Nästa bana</button>
-              <button id="resultMapBtn" type="button">Banväljare</button>
+              <button id="resultRetryBtn" type="button">Try Again</button>
+              <button id="resultNextBtn" type="button">Next Stage</button>
+              <button id="resultMapBtn" type="button">Stages</button>
             </div>
           </div>
           <div id="resultConfetti" class="result-confetti" aria-hidden="true"></div>
@@ -240,18 +245,31 @@
       </section>
     </main>
 
+    <!-- Pause overlay -->
+    <div id="pauseOverlay" class="pause-overlay" hidden>
+      <div class="pause-card">
+        <h2 class="pause-title">Paused <span class="menu-sub">ポーズ</span></h2>
+        <div class="pause-actions">
+          <button id="pauseResumeBtn" class="pause-btn pause-btn--resume" type="button">Resume</button>
+          <button id="pauseRestartBtn" class="pause-btn" type="button">Restart</button>
+          <button id="pauseMapBtn" class="pause-btn" type="button">Stages</button>
+          <button id="pauseMenuBtn" class="pause-btn" type="button">Main Menu</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Level picker overlay -->
     <div id="levelPicker" class="level-picker" hidden>
       <div class="level-picker__inner">
         <div class="level-picker__header">
           <h1 class="level-picker__title">Manga Match!</h1>
-          <p class="level-picker__subtitle">Välj bana</p>
-          <button id="shopOpenBtn" class="level-picker__shop-btn" type="button">Butik</button>
+          <p class="level-picker__subtitle">Select Stage</p>
+          <button id="shopOpenBtn" class="level-picker__shop-btn" type="button">Shop</button>
         </div>
         <div id="levelGrid" class="level-picker__grid"></div>
         <div class="level-picker__footer">
-          <button id="pickerCloseBtn" class="level-picker__close" type="button">Tillbaka</button>
-          <button id="pickerMenuBtn" class="level-picker__close" type="button">Huvudmeny</button>
+          <button id="pickerCloseBtn" class="level-picker__close" type="button">Back</button>
+          <button id="pickerMenuBtn" class="level-picker__close" type="button">Main Menu</button>
         </div>
       </div>
     </div>
@@ -264,7 +282,7 @@
           <p class="shop-coins">コイン <strong id="shopCoins">0</strong></p>
         </div>
         <div id="shopGrid" class="shop-grid"></div>
-        <button id="shopCloseBtn" class="shop-close-btn" type="button">Tillbaka</button>
+        <button id="shopCloseBtn" class="shop-close-btn" type="button">Back</button>
       </div>
     </div>
 
@@ -273,7 +291,7 @@
       <div class="prep-inner">
         <h2 id="prepTitle" class="prep-title"></h2>
         <div class="prep-section">
-          <h3 class="prep-label">Mål</h3>
+          <h3 class="prep-label">Goals</h3>
           <ul id="prepGoals" class="prep-goals"></ul>
         </div>
         <div class="prep-section">
@@ -281,8 +299,8 @@
           <div id="prepPowerups" class="prep-powerups"></div>
         </div>
         <div class="prep-actions">
-          <button id="prepBackBtn" class="prep-back-btn" type="button">Tillbaka</button>
-          <button id="prepStartBtn" class="prep-start-btn" type="button">Starta!</button>
+          <button id="prepBackBtn" class="prep-back-btn" type="button">Back</button>
+          <button id="prepStartBtn" class="prep-start-btn" type="button">Start!</button>
         </div>
       </div>
     </div>
@@ -293,11 +311,12 @@
       <div class="tutorial-bubble" id="tutorialBubble">
         <div class="tutorial-bubble__tail"></div>
         <div class="tutorial-bubble__text" id="tutorialText"></div>
-        <button class="tutorial-bubble__btn" id="tutorialBtn" type="button">Nästa</button>
-        <button class="tutorial-bubble__skip" id="tutorialSkip" type="button">Hoppa över</button>
+        <button class="tutorial-bubble__btn" id="tutorialBtn" type="button">Next</button>
+        <button class="tutorial-bubble__skip" id="tutorialSkip" type="button">Skip</button>
       </div>
     </div>
 
     <script type="module" src="game.js"></script>
+    <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");</script>
   </body>
 </html>

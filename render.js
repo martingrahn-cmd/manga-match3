@@ -15,7 +15,7 @@ export const renderMixin = {
         button.className = "tile";
         button.dataset.row = String(r);
         button.dataset.col = String(c);
-        button.setAttribute("aria-label", "Tom ruta");
+        button.setAttribute("aria-label", "Empty cell");
         button.disabled = true;
         const parts = this.createCellParts();
         this.cellParts[r][c] = parts;
@@ -64,13 +64,13 @@ export const renderMixin = {
 
     let cls = "tile";
     let disabled = false;
-    let label = "Tom ruta";
+    let label = "Empty cell";
     parts.moodAura.hidden = true; parts.sprite.hidden = true; parts.moodMark.hidden = true; parts.specialChip.hidden = true; parts.lockMark.hidden = true; parts.inkLayer.hidden = true; parts.frameIcon.hidden = true; parts.frameLayer.hidden = true;
 
     if (obstacle?.kind === "frame") {
       cls += " frame-block"; disabled = true;
       parts.frameIcon.hidden = false; parts.frameLayer.hidden = false; parts.frameLayer.textContent = `${obstacle.layers}`;
-      label = `Panel Frame ${obstacle.layers} lager`;
+      label = `Panel Frame ${obstacle.layers} layers`;
       if (button.className !== cls) button.className = cls; button.disabled = disabled; button.setAttribute("aria-label", label); return;
     }
     if (!tile) { disabled = true; if (button.className !== cls) button.className = cls; button.disabled = disabled; button.setAttribute("aria-label", label); return; }
@@ -78,7 +78,7 @@ export const renderMixin = {
     const meta = TILE_TYPES[tile.type];
     const mood = tile.mood ?? 0;
     cls += ` ${meta.id} mood-${mood}`;
-    label = `${meta.id} på ${row + 1},${col + 1}`;
+    label = `${meta.id} at ${row + 1},${col + 1}`;
 
     const tileKey = this.key(row, col);
     const spawnCells = this.spawnOffsets.get(tileKey);
@@ -131,8 +131,8 @@ export const renderMixin = {
     if (this.feverFillEl) this.feverFillEl.style.width = `${feverPercent}%`;
     if (this.feverMeterEl) this.feverMeterEl.setAttribute("aria-valuenow", `${feverPercent}`);
     if (this.feverPercentEl) this.feverPercentEl.textContent = `${feverPercent}%`;
-    if (this.feverStateEl) this.feverStateEl.textContent = this.feverActive ? "FEVER ON" : feverPercent >= 82 ? "Nära!" : "Laddar";
-    if (this.feverTurnsEl) this.feverTurnsEl.textContent = this.feverActive ? `${this.feverTurnsLeft} drag boost` : "Bygg kedjor";
+    if (this.feverStateEl) this.feverStateEl.textContent = this.feverActive ? "FEVER ON" : feverPercent >= 82 ? "Almost!" : "Charging";
+    if (this.feverTurnsEl) this.feverTurnsEl.textContent = this.feverActive ? `${this.feverTurnsLeft} moves boost` : "Build chains";
     this.hudPanelEl?.classList.toggle("fever-on", this.feverActive);
     this.boardPanelEl?.classList.toggle("fever-on", this.feverActive);
     if (this.sfxTagEl && !this.sfxTagTimer) this.sfxTagEl.textContent = this.feverActive ? "FEVER!" : "KIRA!";
@@ -145,7 +145,7 @@ export const renderMixin = {
       const li = document.createElement("li");
       const done = this.isGoalComplete(goal);
       if (done) li.classList.add("done");
-      li.textContent = `${done ? "Klar: " : ""}${this.goalText(goal)}`;
+      li.textContent = `${done ? "Done: " : ""}${this.goalText(goal)}`;
       return li;
     });
     this.goalsListEl.replaceChildren(...items);
@@ -154,9 +154,9 @@ export const renderMixin = {
   goalText(goal) {
     const progress = Math.min(this.getGoalProgress(goal), goal.amount);
     if (goal.type === "score") return `Score ${progress}/${goal.amount}`;
-    if (goal.type === "collect") { const tileIndex = TILE_INDEX_BY_ID[goal.tile]; const tile = TILE_TYPES[tileIndex]; return `${tile?.icon ?? "◆"} Samla ${tile?.name ?? "brickor"}: ${progress}/${goal.amount}`; }
-    if (goal.type === "clear") return `Rensa ${goal.obstacle === "ink" ? "bläckblock" : "panelramar"}: ${progress}/${goal.amount}`;
-    if (goal.type === "unlock") return `Bryt lås ${progress}/${goal.amount}`;
+    if (goal.type === "collect") { const tileIndex = TILE_INDEX_BY_ID[goal.tile]; const tile = TILE_TYPES[tileIndex]; return `${tile?.icon ?? "◆"} Collect ${tile?.name ?? "tiles"}: ${progress}/${goal.amount}`; }
+    if (goal.type === "clear") return `Clear ${goal.obstacle === "ink" ? "ink blocks" : "panel frames"}: ${progress}/${goal.amount}`;
+    if (goal.type === "unlock") return `Break locks ${progress}/${goal.amount}`;
     return "";
   },
 
@@ -171,16 +171,16 @@ export const renderMixin = {
   },
 
   charQuote(event) {
-    const chars = ["Sakura", "Neko", "Sol", "Bläck", "Stjärna", "Blad"];
+    const chars = ["Sakura", "Neko", "Sol", "Ink", "Star", "Blade"];
     const pick = chars[Math.floor(Math.random() * chars.length)];
     const quotes = {
-      miss: [`${pick}: "Nja, det funkar inte..."`, `${pick}: "Försök igen!"`, `${pick}: "Inte riktigt, nya~"`, `${pick}: "Hmm, tänk om!"`],
-      hit: [`${pick}: "Bra drag!"`, `${pick}: "Snyggt!"`, `${pick}: "Fortsätt så!"`, `${pick}: "Naisu~!"`],
-      chain: [`${pick}: "Kedjeattack!!"`, `${pick}: "Vi är ostoppbara!"`, `${pick}: "IKUZO!"`],
-      combo: [`${pick}: "Vilken kombo!!"`, `${pick}: "Sugoi~!!"`, `${pick}: "Vi brinner!"`],
-      mega: [`${pick}: "MEGA COMBO!!!"`, `${pick}: "Otroligt!!!"`, `${pick}: "MASAKA?!"`],
-      color: [`${pick}: "Färgexplosion!"`, `${pick}: "Alla på en gång!"`, `${pick}: "Zenbu kieta!"`],
-      shuffle: [`${pick}: "Brädet blandas om!"`, `${pick}: "Nytt läge, nya chanser!"`, `${pick}: "Omstart!"`],
+      miss: [`${pick}: "Nope, that won't work..."`, `${pick}: "Try again!"`, `${pick}: "Not quite, nya~"`, `${pick}: "Hmm, think again!"`],
+      hit: [`${pick}: "Nice move!"`, `${pick}: "Sugoi~!"`, `${pick}: "Keep going!"`, `${pick}: "Naisu~!"`],
+      chain: [`${pick}: "Chain attack!!"`, `${pick}: "We're unstoppable!"`, `${pick}: "IKUZO!"`],
+      combo: [`${pick}: "What a combo!!"`, `${pick}: "Sugoi~!!"`, `${pick}: "We're on fire!"`],
+      mega: [`${pick}: "MEGA COMBO!!!"`, `${pick}: "Incredible!!!"`, `${pick}: "MASAKA?!"`],
+      color: [`${pick}: "Color explosion!"`, `${pick}: "All at once!"`, `${pick}: "Zenbu kieta!"`],
+      shuffle: [`${pick}: "Board shuffled!"`, `${pick}: "New layout, new chances!"`, `${pick}: "Fresh start!"`],
     };
     const list = quotes[event] ?? quotes.hit;
     return list[Math.floor(Math.random() * list.length)];
@@ -375,20 +375,20 @@ export const renderMixin = {
     const stars = isVictory ? this.calculateStars() : 0;
     const lines = [];
     if (isVictory) {
-      lines.push(`Bana ${this.currentLevel.id}: ${this.currentLevel.name}`);
+      lines.push(`Stage ${this.currentLevel.id}: ${this.currentLevel.name}`);
       this.saveProgress(this.currentLevel.id, this.score, stars);
       const coinsEarned = this.awardLevelCoins(stars);
       const prev = this.getLevelProgress(this.currentLevel.id);
-      if (prev && prev.bestScore > this.score) lines.push(`<span class="result-detail">Bästa: ${prev.bestScore.toLocaleString("sv")} p</span>`);
+      if (prev && prev.bestScore > this.score) lines.push(`<span class="result-detail">Best: ${prev.bestScore.toLocaleString("en")} pts</span>`);
       if (coinsEarned > 0) lines.push(`<span class="result-coins">+${coinsEarned} コイン</span>`);
     }
-    lines.push(`<span class="result-score">${this.score.toLocaleString("sv")} p</span>`);
-    lines.push(`<span class="result-detail">${movesUsed} drag använda av ${this.currentLevel.moves}</span>`);
-    if (!isVictory) { const missing = this.currentLevel.goals.find((g) => !this.isGoalComplete(g)); if (missing) lines.push(`<span class="result-detail">Kvar: ${this.goalText(missing)}</span>`); }
+    lines.push(`<span class="result-score">${this.score.toLocaleString("en")} pts</span>`);
+    lines.push(`<span class="result-detail">${movesUsed} moves used of ${this.currentLevel.moves}</span>`);
+    if (!isVictory) { const missing = this.currentLevel.goals.find((g) => !this.isGoalComplete(g)); if (missing) lines.push(`<span class="result-detail">Remaining: ${this.goalText(missing)}</span>`); }
     this.renderStars(stars, isVictory);
     this.resultBody.innerHTML = lines.join("");
     this.resultNextBtn.hidden = !isVictory || this.levelIndex >= LEVELS.length - 1;
-    this.resultRetryBtn.textContent = isVictory ? "Spela igen" : "Försök igen";
+    this.resultRetryBtn.textContent = isVictory ? "Play Again" : "Try Again";
     if (isVictory) this.spawnConfetti(); else this.resultConfettiEl.innerHTML = "";
   },
 

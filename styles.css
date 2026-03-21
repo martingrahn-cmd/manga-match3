@@ -260,6 +260,88 @@ body::before {
   color: #8af8ff;
 }
 
+/* ── Pause Overlay ── */
+.pause-overlay[hidden] {
+  display: none;
+}
+
+.pause-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0e1ee0;
+  backdrop-filter: blur(6px);
+  animation: fade-in 200ms ease-out;
+}
+
+.pause-card {
+  background: linear-gradient(160deg, #1c2654, #141c42);
+  border: 3px solid #2a3568;
+  border-radius: 20px;
+  padding: 36px 32px;
+  min-width: 260px;
+  text-align: center;
+  box-shadow: 0 20px 60px #00000080, inset 0 1px #ffffff12;
+}
+
+.pause-title {
+  font-family: "Bangers", "Impact", sans-serif;
+  font-size: 2.2rem;
+  letter-spacing: 3px;
+  color: #fff;
+  margin: 0 0 28px;
+}
+
+.pause-title .menu-sub {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 4px;
+  color: #8af8ff80;
+  margin-top: 4px;
+}
+
+.pause-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pause-btn {
+  padding: 14px 20px;
+  border: 2px solid #2a3568;
+  border-radius: 12px;
+  background: linear-gradient(150deg, #1c2654, #141c42);
+  color: #c8d0f0;
+  font-family: "Bangers", "Impact", sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 180ms ease;
+  box-shadow: inset 0 1px #ffffff18, 0 4px 12px #00000040;
+}
+
+.pause-btn:hover {
+  transform: translateY(-2px);
+  border-color: #8af8ff;
+  color: #fff;
+}
+
+.pause-btn--resume {
+  background: linear-gradient(150deg, #1a4a3a, #0f3a2a);
+  border-color: #4dffa8;
+  color: #4dffa8;
+  font-size: 1.3rem;
+}
+
+.pause-btn--resume:hover {
+  border-color: #7fffcc;
+  color: #fff;
+  background: linear-gradient(150deg, #226a50, #185a3a);
+}
+
 /* ── Options ── */
 .options-list {
   display: flex;

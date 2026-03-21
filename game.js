@@ -86,6 +86,7 @@ class MangaMatch3 {
     this.comboBurstTimer = null;
     this.hintTimer = null;
     this.hintedCells = [];
+    this.paused = false;
 
     this.collectCounts = Array(TILE_TYPES.length).fill(0);
     this.clearedObstacleCounts = { ink: 0, frame: 0 };
@@ -104,6 +105,14 @@ class MangaMatch3 {
     this.resultMapBtn.addEventListener("click", () => { this.hideResultOverlay(); this.showLevelSelect(); });
     this.mapBtn = document.getElementById("mapBtn");
     this.mapBtn.addEventListener("click", () => this.showLevelSelect());
+
+    this.pauseBtn = document.getElementById("pauseBtn");
+    this.pauseOverlayEl = document.getElementById("pauseOverlay");
+    this.pauseBtn.addEventListener("click", () => this.togglePause());
+    document.getElementById("pauseResumeBtn").addEventListener("click", () => this.resumeGame());
+    document.getElementById("pauseRestartBtn").addEventListener("click", () => { this.resumeGame(); this.resetCurrentLevel(); });
+    document.getElementById("pauseMapBtn").addEventListener("click", () => { this.resumeGame(); this.showLevelSelect(); });
+    document.getElementById("pauseMenuBtn").addEventListener("click", () => { this.resumeGame(); this.showMainMenu(); });
 
     this.swipeStart = null;
     this.swipeThreshold = 30;
@@ -143,12 +152,14 @@ class MangaMatch3 {
     this.updateHUD();
     this.renderDailyPanel();
     this.renderGoals();
-    const stageStatus = `Bana ${this.currentLevel.id}: ${this.currentLevel.name}`;
+    const stageStatus = `Stage ${this.currentLevel.id}: ${this.currentLevel.name}`;
     if (this.dailyRewardStatus) { this.setStatus(`${stageStatus} | ${this.dailyRewardStatus}`); this.showComboBurst("DAILY BONUS"); this.dailyRewardStatus = ""; } else { this.setStatus(stageStatus); }
     this.showComboBurst(`STAGE ${this.currentLevel.id}`);
     this.spawnOffsets.clear();
     this.invalidateAllCells();
     this.fxLayerEl?.replaceChildren();
+    this.paused = false;
+    if (this.pauseOverlayEl) this.pauseOverlayEl.hidden = true;
     this.hideResultOverlay();
     this.hideLevelSelect();
     this.render();
@@ -172,17 +183,17 @@ class MangaMatch3 {
 
   onTileClick(event) {
     const tileButton = event.target.closest(".tile");
-    if (!tileButton || this.busy || this.levelComplete || this.tutActive) return;
+    if (!tileButton || this.busy || this.levelComplete || this.tutActive || this.paused) return;
     const row = Number(tileButton.dataset.row);
     const col = Number(tileButton.dataset.col);
     if (!this.inBounds(row, col)) return;
     if ((this.bomb3x3Pending || this.inkBlastPending) && this.handlePowerupClick(row, col)) return;
     if (this.isFrameCell(row, col) || !this.board[row][col]) return;
     const pos = { row, col };
-    if (!this.selected) { if (!this.canSelectCell(pos)) { this.setStatus("Låsta brickor kan inte flyttas."); return; } this.selected = pos; sfx.select(); this.render(); return; }
+    if (!this.selected) { if (!this.canSelectCell(pos)) { this.setStatus("Locked tiles can't be moved."); return; } this.selected = pos; sfx.select(); this.render(); return; }
     if (this.selected.row === row && this.selected.col === col) { this.selected = null; sfx.deselect(); this.render(); return; }
-    if (!this.isAdjacent(this.selected, pos)) { if (this.canSelectCell(pos)) this.selected = pos; else this.setStatus("Välj en olåst bricka."); this.render(); return; }
-    if (!this.canSwap(this.selected, pos)) { this.selected = null; this.setStatus("Det draget är låst."); this.render(); return; }
+    if (!this.isAdjacent(this.selected, pos)) { if (this.canSelectCell(pos)) this.selected = pos; else this.setStatus("Select an unlocked tile."); this.render(); return; }
+    if (!this.canSwap(this.selected, pos)) { this.selected = null; this.setStatus("That move is locked."); this.render(); return; }
     this.swapAttempt(this.selected, pos);
   }
 
@@ -195,7 +206,7 @@ class MangaMatch3 {
   }
 
   onTouchStart(event) {
-    sfx.init(); if (this.busy || this.levelComplete || this.tutActive) return;
+    sfx.init(); if (this.busy || this.levelComplete || this.tutActive || this.paused) return;
     const touch = event.touches[0]; const pos = this.getTilePosFromTouch(touch); if (!pos) return;
     event.preventDefault(); this.clearHint();
     this.swipeStart = { x: touch.clientX, y: touch.clientY, row: pos.row, col: pos.col };
@@ -214,8 +225,8 @@ class MangaMatch3 {
     if (absDx > absDy) targetCol += dx > 0 ? 1 : -1; else targetRow += dy > 0 ? 1 : -1;
     if (!this.inBounds(targetRow, targetCol) || this.isFrameCell(targetRow, targetCol) || !this.board[targetRow][targetCol]) return;
     const target = { row: targetRow, col: targetCol };
-    if (!this.canSelectCell(startPos)) { this.setStatus("Låsta brickor kan inte flyttas."); return; }
-    if (!this.canSwap(startPos, target)) { this.setStatus("Det draget är låst."); return; }
+    if (!this.canSelectCell(startPos)) { this.setStatus("Locked tiles can't be moved."); return; }
+    if (!this.canSwap(startPos, target)) { this.setStatus("That move is locked."); return; }
     this.selected = null; this.swapAttempt(startPos, target);
   }
 
@@ -337,8 +348,8 @@ class MangaMatch3 {
     if (this.isLevelComplete()) {
       this.levelComplete = true; this.updateHUD(); this.renderGoals(); sfx.levelComplete();
       this.flashSfxTag("クリア!", 2000);
-      if (this.levelIndex >= LEVELS.length - 1) { this.setStatus("Du klarade alla banor! Finalpanelen är säkrad."); this.showComboBurst("VICTORY!"); }
-      else { this.setStatus(`Bana ${this.currentLevel.id} klar!`); this.showComboBurst("STAGE CLEAR"); }
+      if (this.levelIndex >= LEVELS.length - 1) { this.setStatus("You cleared all stages! The Final Panel is secured."); this.showComboBurst("VICTORY!"); }
+      else { this.setStatus(`Stage ${this.currentLevel.id} clear!`); this.showComboBurst("STAGE CLEAR"); }
       window.setTimeout(() => this.showResultOverlay("victory"), 1200); return;
     }
     if (this.moves <= 0) {
@@ -346,7 +357,7 @@ class MangaMatch3 {
       this.flashSfxTag("ざんねん…", 2000); this.showComboBurst("TRY AGAIN");
       window.setTimeout(() => this.showResultOverlay("game-over"), 1200); return;
     }
-    if (!this.hasAnyPossibleMove()) { this.shuffleBoard(false); this.setStatus(this.charQuote("shuffle")); }
+    if (!this.hasAnyPossibleMove()) { this.shuffleBoard(false); this.setStatus("Board shuffled — no moves available."); }
     this.updateHUD(); this.renderGoals();
   }
 
@@ -360,7 +371,7 @@ class MangaMatch3 {
   }
   isGoalComplete(goal) { return this.getGoalProgress(goal) >= goal.amount; }
   isLevelComplete() { return this.currentLevel.goals.every((goal) => this.isGoalComplete(goal)); }
-  manualShuffle() { if (this.busy || this.levelComplete) return; this.shuffleBoard(false); this.setStatus("Brädet blandades manuellt."); }
+  manualShuffle() { if (this.busy || this.levelComplete) return; this.shuffleBoard(false); this.setStatus("Board shuffled manually."); }
 
   /* ── Persistence ── */
 
@@ -391,6 +402,26 @@ class MangaMatch3 {
     this.feverTurnsLeft = Math.max(0, this.feverTurnsLeft - 1);
     this.feverCharge = Math.round((this.feverTurnsLeft / FEVER.TURNS) * FEVER.MAX_CHARGE);
     if (this.feverTurnsLeft === 0) { this.feverActive = false; this.feverCharge = 0; }
+  }
+
+  /* ── Pause ── */
+
+  togglePause() { if (this.paused) this.resumeGame(); else this.pauseGame(); }
+
+  pauseGame() {
+    if (this.paused || this.levelComplete) return;
+    this.paused = true;
+    this.clearHint();
+    sfx.uiClick();
+    this.pauseOverlayEl.hidden = false;
+  }
+
+  resumeGame() {
+    if (!this.paused) return;
+    this.paused = false;
+    sfx.uiClick();
+    this.pauseOverlayEl.hidden = true;
+    this.scheduleHint();
   }
 
   /* ── Utility ── */
