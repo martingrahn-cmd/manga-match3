@@ -606,6 +606,7 @@ class MangaMatch3 {
     this.spawnOffsets = new Map();
     this.cellNodes = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
     this.cellParts = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
+    this.cellHashes = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(""));
 
     this.score = 0;
     this.moves = 0;
@@ -981,6 +982,7 @@ class MangaMatch3 {
     }
     this.showComboBurst(`STAGE ${this.currentLevel.id}`);
     this.spawnOffsets.clear();
+    this.invalidateAllCells();
     this.fxLayerEl?.replaceChildren();
     this.hideResultOverlay();
     this.hideLevelSelect();
@@ -1436,6 +1438,7 @@ class MangaMatch3 {
       this.spawnRunSweeps(found.runs, impactLevel);
       this.spawnImpactFX(impactSet, fxType);
       const heavyImpact = impactSet.size >= 6 || chain >= 2;
+      if (chain >= 2) this.triggerSpeedLines();
       if (heavyImpact) {
         this.flashBoard(impactLevel);
         this.triggerPanelBoost(Math.min(3, Math.max(1, Math.floor(impactSet.size / 6))));
@@ -2840,6 +2843,11 @@ class MangaMatch3 {
     this.retriggerElementClass(this.boardEl, "hit-flash", "__flashToken");
   }
 
+  triggerSpeedLines() {
+    if (!this.boardPanelEl) return;
+    this.retriggerElementClass(this.boardPanelEl, "speed-lines", "__speedToken");
+  }
+
   triggerPanelBoost(level = 1) {
     if (!this.boardPanelEl) return;
     this.boardPanelEl.style.setProperty("--boost-power", `${1 + level * 0.15}`);
@@ -2999,6 +3007,10 @@ class MangaMatch3 {
       className
     );
     await this.sleep(duration);
+    // Invalidate hashes so next render() cleans up animation classes
+    for (const { row, col } of entries) {
+      this.cellHashes[row][col] = "";
+    }
   }
 
   triggerKeySet(keys, className) {
@@ -3007,7 +3019,10 @@ class MangaMatch3 {
     for (const key of keyList) {
       const [row, col] = this.fromKey(key);
       const node = this.getCellNode(row, col);
-      if (node) entries.push(node);
+      if (node) {
+        entries.push(node);
+        this.cellHashes[row][col] = "";
+      }
     }
     if (entries.length === 0) return;
     for (let i = 0; i < entries.length; i += 1) {
@@ -3088,20 +3103,31 @@ class MangaMatch3 {
     this.shuffleBtn.disabled = this.busy || this.levelComplete;
   }
 
-  renderCell(row, col) {
+  cellHash(row, col) {
+    const obstacle = this.obstacles[row]?.[col] ?? null;
+    const tile = this.board[row]?.[col] ?? null;
+    const sel = this.selected && this.selected.row === row && this.selected.col === col ? 1 : 0;
+    if (obstacle?.kind === "frame") return `F${obstacle.layers}`;
+    if (!tile) return "E";
+    const spawnCells = this.spawnOffsets.get(this.key(row, col)) ?? 0;
+    return `${tile.type}|${tile.mood ?? 0}|${tile.special ?? ""}|${tile.locked ? 1 : 0}|${obstacle?.kind === "ink" ? obstacle.layers : 0}|${sel}|${spawnCells}`;
+  }
+
+  renderCell(row, col, force) {
+    const hash = this.cellHash(row, col);
+    if (!force && hash === this.cellHashes[row][col]) return;
+    this.cellHashes[row][col] = hash;
+
     const obstacle = this.obstacles[row]?.[col] ?? null;
     const tile = this.board[row]?.[col] ?? null;
     const button = this.getCellNode(row, col);
     const parts = this.getCellParts(row, col);
     if (!button || !parts) return;
 
-    button.className = "tile";
-    button.disabled = false;
-    button.style.setProperty("--spawn-cells", "1");
-    button.style.setProperty("--spawn-delay", "0ms");
-    button.style.setProperty("--spawn-ms", "300ms");
-    button.style.setProperty("--fall-ms", "220ms");
-    button.style.setProperty("--fx-delay", "0ms");
+    // Build target className as a single string to minimize DOM writes
+    let cls = "tile";
+    let disabled = false;
+    let label = "Tom ruta";
 
     parts.moodAura.hidden = true;
     parts.sprite.hidden = true;
@@ -3113,65 +3139,85 @@ class MangaMatch3 {
     parts.frameLayer.hidden = true;
 
     if (obstacle?.kind === "frame") {
-      button.classList.add("frame-block");
-      button.disabled = true;
+      cls += " frame-block";
+      disabled = true;
       parts.frameIcon.hidden = false;
       parts.frameLayer.hidden = false;
       parts.frameLayer.textContent = `${obstacle.layers}`;
-      button.setAttribute("aria-label", `Panel Frame ${obstacle.layers} lager`);
+      label = `Panel Frame ${obstacle.layers} lager`;
+      if (button.className !== cls) button.className = cls;
+      button.disabled = disabled;
+      button.setAttribute("aria-label", label);
       return;
     }
 
     if (!tile) {
-      button.disabled = true;
-      button.setAttribute("aria-label", "Tom ruta");
+      disabled = true;
+      if (button.className !== cls) button.className = cls;
+      button.disabled = disabled;
+      button.setAttribute("aria-label", label);
       return;
     }
 
     const meta = TILE_TYPES[tile.type];
+    const mood = tile.mood ?? 0;
+    cls += ` ${meta.id} mood-${mood}`;
+    label = `${meta.id} på ${row + 1},${col + 1}`;
+
     const tileKey = this.key(row, col);
-    button.classList.add(meta.id);
-    button.classList.add(`mood-${tile.mood ?? 0}`);
-    button.setAttribute("aria-label", `${meta.id} på ${row + 1},${col + 1}`);
     const spawnCells = this.spawnOffsets.get(tileKey);
     if (spawnCells) {
       const spawnDepth = Math.min(4, spawnCells);
       button.style.setProperty("--spawn-cells", `${spawnDepth}`);
       button.style.setProperty("--spawn-delay", `${Math.min(60, (spawnDepth - 1) * 14)}ms`);
       button.style.setProperty("--spawn-ms", `${Math.min(440, 310 + spawnDepth * 28)}ms`);
+    } else {
+      button.style.setProperty("--spawn-cells", "1");
+      button.style.setProperty("--spawn-delay", "0ms");
+      button.style.setProperty("--spawn-ms", "300ms");
     }
+    button.style.setProperty("--fall-ms", "220ms");
+    button.style.setProperty("--fx-delay", "0ms");
 
     parts.moodAura.hidden = false;
-    parts.moodAura.className = `mood-aura mood-aura-${tile.mood ?? 0}`;
+    const auraClass = `mood-aura mood-aura-${mood}`;
+    if (parts.moodAura.className !== auraClass) parts.moodAura.className = auraClass;
 
     parts.sprite.hidden = false;
-    parts.sprite.className = `sprite sprite--tile sprite-${meta.id} mood-${tile.mood ?? 0}`;
-    parts.sprite.style.setProperty("--mood", `${tile.mood ?? 0}`);
+    const spriteClass = `sprite sprite--tile sprite-${meta.id} mood-${mood}`;
+    if (parts.sprite.className !== spriteClass) parts.sprite.className = spriteClass;
+    parts.sprite.style.setProperty("--mood", `${mood}`);
 
-    if ((tile.mood ?? 0) > 0) {
+    if (mood > 0) {
       parts.moodMark.hidden = false;
-      parts.moodMark.className = `mood-mark mood-mark-${tile.mood ?? 0}`;
-      parts.moodMark.textContent = tile.mood === 1 ? "♥" : "!";
+      const markClass = `mood-mark mood-mark-${mood}`;
+      if (parts.moodMark.className !== markClass) parts.moodMark.className = markClass;
+      parts.moodMark.textContent = mood === 1 ? "♥" : "!";
     }
 
     if (tile.special) {
-      button.classList.add("special", `special-${tile.special}`);
+      cls += ` special special-${tile.special}`;
       parts.specialChip.hidden = false;
-      parts.specialChip.className = `special-chip sprite sprite--badge sprite-special-${tile.special}`;
+      const chipClass = `special-chip sprite sprite--badge sprite-special-${tile.special}`;
+      if (parts.specialChip.className !== chipClass) parts.specialChip.className = chipClass;
     }
     if (tile.locked) {
-      button.classList.add("locked");
+      cls += " locked";
       parts.lockMark.hidden = false;
     }
     if (obstacle?.kind === "ink") {
-      button.classList.add("inked");
+      cls += " inked";
       parts.inkLayer.hidden = false;
       parts.inkCount.textContent = `${obstacle.layers}`;
     }
 
     if (this.selected && this.selected.row === row && this.selected.col === col) {
-      button.classList.add("selected");
+      cls += " selected";
     }
+
+    if (button.className !== cls) button.className = cls;
+    button.disabled = disabled;
+    button.setAttribute("aria-label", label);
   }
 
   renderKeySet(keys) {
@@ -3180,6 +3226,14 @@ class MangaMatch3 {
       const [row, col] = this.fromKey(key);
       if (!this.inBounds(row, col)) continue;
       this.renderCell(row, col);
+    }
+  }
+
+  invalidateAllCells() {
+    for (let r = 0; r < BOARD_SIZE; r += 1) {
+      for (let c = 0; c < BOARD_SIZE; c += 1) {
+        this.cellHashes[r][c] = "";
+      }
     }
   }
 

@@ -515,8 +515,13 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
+    radial-gradient(circle at 1.5px 1.5px, #00000018 1px, transparent 1px),
     radial-gradient(circle at 20% 14%, #ffffff9a 0%, transparent 40%),
     radial-gradient(circle at 80% 90%, #ffffff4d 0%, transparent 45%);
+  background-size:
+    4px 4px,
+    100% 100%,
+    100% 100%;
   opacity: 0.4;
 }
 
@@ -1045,8 +1050,7 @@ button:disabled {
   border-radius: 10px;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.38;
-  mix-blend-mode: screen;
+  opacity: 0.45;
 }
 
 .mood-aura-0 {
@@ -1814,6 +1818,27 @@ button:disabled {
 
 .hud-panel.fever-on #feverState {
   color: #0f5d74;
+}
+
+/* Speed lines on chain ≥2 */
+.board-panel.speed-lines::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg 8deg,
+    #ffffff12 8deg 9deg
+  );
+  animation: speed-lines-spin 600ms linear;
+  opacity: 0;
+}
+
+@keyframes speed-lines-spin {
+  0% { opacity: 0.7; transform: scale(1.2) rotate(0deg); }
+  100% { opacity: 0; transform: scale(1.5) rotate(15deg); }
 }
 
 .board-panel.fever-on {
