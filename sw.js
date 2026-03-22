@@ -1,4 +1,4 @@
-const CACHE_NAME = "manga-match-v1";
+const CACHE_NAME = "manga-match-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,9 +10,13 @@ const ASSETS = [
   "./render.js",
   "./daily.js",
   "./ui.js",
+  "./achievements.js",
+  "./gamevolt.js",
   "./manifest.json",
   "./assets/sprites/atlas.png",
   "./assets/sprites/atlas.json",
+  "./assets/icon-192.png",
+  "./assets/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {

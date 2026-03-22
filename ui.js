@@ -2,6 +2,8 @@
 
 import { sfx } from "./audio.js";
 import { BOARD_SIZE, BASE_POINTS, LEVELS, POWERUPS, COIN_REWARDS, PROGRESS_STORAGE_KEY, SHOP_STORAGE_KEY, DAILY_STORAGE_KEY, TUTORIAL_STORAGE_KEY } from "./constants.js";
+import { gamevolt } from "./gamevolt.js";
+import { ACHIEVEMENTS } from "./achievements.js";
 
 export const uiMixin = {
   /* ── Main Menu ── */
@@ -68,7 +70,22 @@ export const uiMixin = {
     this.highscoreOverlay.hidden = false;
   },
 
-  showAchievements() { const list = document.getElementById("achievementsList"); list.innerHTML = `<p class="highscore-empty">Coming soon!</p>`; this.achievementsOverlay.hidden = false; },
+  showAchievements() {
+    const list = document.getElementById("achievementsList"); list.innerHTML = "";
+    const tierOrder = { platinum: 0, gold: 1, silver: 2, bronze: 3 };
+    const sorted = [...ACHIEVEMENTS].sort((a, b) => tierOrder[a.tier] - tierOrder[b.tier]);
+    const unlockedCount = gamevolt.getUnlockedCount();
+    const header = document.createElement("p"); header.className = "ach-header";
+    header.textContent = `${unlockedCount} / ${ACHIEVEMENTS.length} trophies unlocked`;
+    list.append(header);
+    for (const ach of sorted) {
+      const unlocked = gamevolt.isUnlocked(ach.id);
+      const row = document.createElement("div"); row.className = `ach-row ach-row--${ach.tier}${unlocked ? " ach-row--unlocked" : ""}`;
+      row.innerHTML = `<span class="ach-icon">${unlocked ? ach.icon : "🔒"}</span><div class="ach-info"><span class="ach-name">${ach.name}</span><span class="ach-desc">${ach.desc}</span></div><span class="ach-tier ach-tier--${ach.tier}">${ach.tier}</span>`;
+      list.append(row);
+    }
+    this.achievementsOverlay.hidden = false;
+  },
 
   /* ── Level Picker ── */
 
@@ -129,7 +146,7 @@ export const uiMixin = {
   loadShopData() { try { const raw = window.localStorage.getItem(SHOP_STORAGE_KEY); const data = raw ? JSON.parse(raw) : {}; return { coins: Math.max(0, Math.floor(data.coins ?? 0)), inventory: data.inventory ?? {} }; } catch { return { coins: 0, inventory: {} }; } },
   saveShopData() { try { window.localStorage.setItem(SHOP_STORAGE_KEY, JSON.stringify(this.shopData)); } catch {} },
   getCoins() { return this.shopData.coins; },
-  addCoins(amount) { this.shopData.coins = Math.max(0, this.shopData.coins + amount); this.saveShopData(); this.updateCoinHUD(); },
+  addCoins(amount) { this.shopData.coins = Math.max(0, this.shopData.coins + amount); this.saveShopData(); this.updateCoinHUD(); if (amount > 0) gamevolt.addStat("totalCoinsEarned", amount); },
   getInventoryCount(powerupId) { return this.shopData.inventory[powerupId] ?? 0; },
 
   buyPowerup(powerupId) {
@@ -228,6 +245,7 @@ export const uiMixin = {
 
   usePowerup(puId) {
     if (this.busy || this.levelComplete) return;
+    gamevolt.addStat("totalPowerupsUsed", 1);
     if (puId === "sensei") { this.activePowerups = this.activePowerups.filter((id) => id !== puId); this.showHint(); this.showComboBurst("SENSEI!"); this.clearHintTimeout = window.setTimeout(() => this.clearHint(), 10000); this.renderActivePowerupBar(); return; }
     if (puId === "ink_blast") { this.inkBlastPending = true; this.bomb3x3Pending = false; this.setStatus("Tap a tile to destroy all of that color!"); this.renderActivePowerupBar(); return; }
     if (puId === "bomb_3x3") { this.bomb3x3Pending = true; this.inkBlastPending = false; this.setStatus("Tap a cell to blast 3×3!"); this.renderActivePowerupBar(); return; }

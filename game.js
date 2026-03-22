@@ -6,6 +6,7 @@ import { boardMixin } from "./board.js";
 import { renderMixin } from "./render.js";
 import { dailyMixin } from "./daily.js";
 import { uiMixin } from "./ui.js";
+import { gamevolt } from "./gamevolt.js";
 
 class MangaMatch3 {
   constructor() {
@@ -126,6 +127,7 @@ class MangaMatch3 {
     this.updateCoinHUD();
     this.initTutorial();
     this.initMainMenu();
+    gamevolt.init();
   }
 
   /* ── Level Management ── */
@@ -312,7 +314,7 @@ class MangaMatch3 {
       this.consumeSpawnOffsets(spawned); this.spawnImpactFX(spawned, "spawn");
       await this.sleep(TIMING.CASCADE_MS); localLastSwap = null;
     }
-    if (chain > 1) { this.recordDailyProgress("chain", 1); this.syncDailyProgress(); this.setStatus(this.charQuote("combo")); this.showComboBurst(`${chain} CHAIN`); }
+    if (chain > 1) { this.recordDailyProgress("chain", 1); this.syncDailyProgress(); this.setStatus(this.charQuote("combo")); this.showComboBurst(`${chain} CHAIN`); gamevolt.setStat("maxChain", chain); }
     else if (chain === 1) { this.setStatus(this.charQuote("hit")); }
   }
 
@@ -339,7 +341,17 @@ class MangaMatch3 {
     this.addFeverCharge(this.computeFeverGain(cleared, specialMap.size));
     this.recordDailyProgress("clear", cleared); this.recordDailyProgress("special", specialMap.size); this.recordDailyProgress("score", gained);
     for (let i = 0; i < clearedByType.length; i += 1) { if (clearedByType[i] > 0) this.recordDailyProgress("collect", clearedByType[i], TILE_TYPES[i].id); }
-    this.syncDailyProgress(); this.updateHUD(); this.renderGoals(); return gained;
+    this.syncDailyProgress(); this.updateHUD(); this.renderGoals();
+    gamevolt.addStat("totalMatches", 1);
+    gamevolt.addStat("totalCleared", cleared);
+    gamevolt.setStat("maxStageClear", cleared);
+    if (specialMap.size > 0) gamevolt.addStat("totalSpecials", specialMap.size);
+    for (const [, value] of specialMap.entries()) {
+      if (value.special === SPECIAL.LINE_H || value.special === SPECIAL.LINE_V) gamevolt.addStat("totalLines", 1);
+      else if (value.special === SPECIAL.BOMB) gamevolt.addStat("totalBombs", 1);
+      else if (value.special === SPECIAL.COLOR) gamevolt.addStat("totalColors", 1);
+    }
+    return gained;
   }
 
   /* ── Post-turn ── */
@@ -350,11 +362,27 @@ class MangaMatch3 {
       this.flashSfxTag("クリア!", 2000);
       if (this.levelIndex >= LEVELS.length - 1) { this.setStatus("You cleared all stages! The Final Panel is secured."); this.showComboBurst("VICTORY!"); }
       else { this.setStatus(`Stage ${this.currentLevel.id} clear!`); this.showComboBurst("STAGE CLEAR"); }
+      gamevolt.addStat("stagesCleared", 1);
+      gamevolt.setStat("maxStageCleared", this.currentLevel.id);
+      gamevolt.setStat("maxStageScore", this.score);
+      const stars = this.calculateStars();
+      gamevolt.addStat("totalStars", stars);
+      if (stars >= 3) gamevolt.setStat("has3Star", 1);
+      gamevolt.addStat("totalInkCleared", this.clearedObstacleCounts.ink);
+      gamevolt.addStat("totalLocksBreaked", this.unlockedCount);
+      gamevolt.submitScore(this.score);
+      const newTrophies = gamevolt.checkAchievements();
+      if (newTrophies.length > 0) this.showTrophyUnlocks(newTrophies);
       window.setTimeout(() => this.showResultOverlay("victory"), 1200); return;
     }
     if (this.moves <= 0) {
       this.levelComplete = true; this.updateHUD(); sfx.gameOver();
       this.flashSfxTag("ざんねん…", 2000); this.showComboBurst("TRY AGAIN");
+      gamevolt.setStat("maxStageScore", this.score);
+      gamevolt.addStat("totalInkCleared", this.clearedObstacleCounts.ink);
+      gamevolt.addStat("totalLocksBreaked", this.unlockedCount);
+      const goTrophies = gamevolt.checkAchievements();
+      if (goTrophies.length > 0) this.showTrophyUnlocks(goTrophies);
       window.setTimeout(() => this.showResultOverlay("game-over"), 1200); return;
     }
     if (!this.hasAnyPossibleMove()) { this.shuffleBoard(false); this.setStatus("Board shuffled — no moves available."); }
@@ -394,6 +422,7 @@ class MangaMatch3 {
     sfx.feverActivate(); this.flashSfxTag("燃えろ!", 1800);
     this.feverActive = true; this.feverTurnsLeft = FEVER.TURNS; this.feverCharge = FEVER.MAX_CHARGE;
     this.feverActivatedThisTurn = true; this.showComboBurst("FEVER!"); this.triggerPanelBoost(3); this.flashBoard(2);
+    gamevolt.addStat("totalFevers", 1);
   }
 
   consumeFeverTurn() {
@@ -422,6 +451,17 @@ class MangaMatch3 {
     sfx.uiClick();
     this.pauseOverlayEl.hidden = true;
     this.scheduleHint();
+  }
+
+  /* ── Trophy Notifications ── */
+
+  showTrophyUnlocks(trophies) {
+    for (let i = 0; i < trophies.length; i++) {
+      const trophy = trophies[i];
+      window.setTimeout(() => {
+        this.showComboBurst(`${trophy.icon} ${trophy.name}`);
+      }, 600 + i * 1200);
+    }
   }
 
   /* ── Utility ── */

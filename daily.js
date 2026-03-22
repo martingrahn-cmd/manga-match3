@@ -1,6 +1,7 @@
 /* ── Daily Challenge Mixin ── */
 
 import { TILE_TYPES, TILE_INDEX_BY_ID, DAILY_STORAGE_KEY, DAILY_CHALLENGE_VERSION } from "./constants.js";
+import { gamevolt } from "./gamevolt.js";
 
 export const dailyMixin = {
   initializeDailyLoop() {
@@ -150,6 +151,8 @@ export const dailyMixin = {
     if (this.dailyState.lastCompletedDate === yesterday) this.dailyState.streak += 1;
     else if (this.dailyState.lastCompletedDate !== today) this.dailyState.streak = 1;
     this.dailyState.lastCompletedDate = today;
+    gamevolt.addStat("dailiesCompleted", 1);
+    gamevolt.setStat("maxDailyStreak", this.dailyState.streak);
     const reward = this.getDailyChallengeReward(this.dailyState.streak, challenge.type);
     this.moves += reward.moves; this.score += reward.score; this.addFeverCharge(reward.fever);
     this.dailyProgressDirty = true; this.syncDailyProgress(true);
